@@ -1,0 +1,1495 @@
+// ============================================================
+// GENERATOR & DATASOURCE
+// ============================================================
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ============================================================
+// ENUMS
+// ============================================================
+
+enum ContentStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum LeadStatus {
+  NEW
+  CONTACTED
+  QUALIFIED
+  PROPOSAL_SENT
+  NEGOTIATING
+  CONVERTED
+  LOST
+}
+
+enum LeadPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum LeadSource {
+  WEBSITE
+  REFERRAL
+  SOCIAL_MEDIA
+  EMAIL_CAMPAIGN
+  PHONE
+  WALK_IN
+  OTHER
+}
+
+enum LeadActivityType {
+  CREATED
+  UPDATED
+  ASSIGNED
+  CONTACTED
+  EMAIL_SENT
+  CALL_MADE
+  MEETING_SCHEDULED
+  NOTE_ADDED
+  STATUS_CHANGED
+  PROPOSAL_SENT
+  CONVERTED
+  LOST
+}
+
+enum ConsultationStatus {
+  PENDING
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+  NO_SHOW
+}
+
+enum FileCategory {
+  IMAGE
+  VIDEO
+  DOCUMENT
+  AUDIO
+  OTHER
+}
+
+enum ProjectType {
+  CLIENT_PROJECT
+  INTERNAL_PROJECT
+  RESEARCH
+  MAINTENANCE
+}
+
+enum ProjectStatus {
+  PLANNING
+  IN_PROGRESS
+  ON_HOLD
+  REVIEW
+  COMPLETED
+  CANCELLED
+}
+
+enum ProjectMemberRole {
+  LEAD
+  MEMBER
+  REVIEWER
+  OBSERVER
+}
+
+enum MilestoneStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  BLOCKED
+}
+
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  IN_REVIEW
+  BLOCKED
+  COMPLETED
+  CANCELLED
+}
+
+enum TaskPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum ProposalStatus {
+  DRAFT
+  SENT
+  VIEWED
+  ACCEPTED
+  REJECTED
+  EXPIRED
+}
+
+enum ClientAppreciationType {
+  THANK_YOU_NOTE
+  GIFT
+  REFERRAL
+  BONUS
+  TESTIMONIAL
+  OTHER
+}
+
+enum ContactMessageStatus {
+  UNREAD
+  READ
+  REPLIED
+  ARCHIVED
+  SPAM
+}
+
+enum NotificationType {
+  LEAD_NEW
+  LEAD_ASSIGNED
+  LEAD_STATUS_CHANGED
+  PROPOSAL_SENT
+  PROPOSAL_ACCEPTED
+  PROPOSAL_REJECTED
+  PROJECT_UPDATE
+  TASK_ASSIGNED
+  TASK_DUE
+  CONSULTATION_SCHEDULED
+  MESSAGE_RECEIVED
+  REVIEW_RECEIVED
+  SEO_REPORT
+  SYSTEM
+}
+
+enum NotificationEntityType {
+  LEAD
+  PROPOSAL
+  PROJECT
+  TASK
+  CONSULTATION
+  MESSAGE
+  REVIEW
+  USER
+}
+
+enum UserRole {
+  ADMIN
+  STAFF
+  CLIENT
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+}
+
+enum StaffRole {
+  OWNER
+  MANAGER
+  DEVELOPER
+  DESIGNER
+  MARKETING
+  SALES
+  SUPPORT
+}
+
+enum StaffStatus {
+  ACTIVE
+  INACTIVE
+  ON_LEAVE
+  TERMINATED
+}
+
+enum PricingPlanBillingInterval {
+  ONE_TIME
+  MONTHLY
+  QUARTERLY
+  YEARLY
+  CUSTOM
+}
+
+// ----- SEO Deliverables -----
+enum RankingSearchEngine {
+  GOOGLE
+  BING
+}
+
+enum RankingDevice {
+  DESKTOP
+  MOBILE
+}
+
+enum CitationStatus {
+  PENDING
+  SUBMITTED
+  LIVE
+  REJECTED
+}
+
+enum BacklinkStatus {
+  PROSPECTING
+  OUTREACH_SENT
+  NEGOTIATING
+  ACQUIRED
+  LIVE
+  REMOVED
+}
+
+enum ReviewPlatform {
+  GOOGLE
+  FACEBOOK
+  YELP
+  TRUSTPILOT
+  OTHER
+}
+
+enum CallStatus {
+  COMPLETED
+  MISSED
+  VOICEMAIL
+}
+
+enum PaymentProvider {
+  STRIPE
+  BKASH
+  SSLCOMMERZ
+  MANUAL
+}
+
+enum PaymentStatus {
+  PENDING
+  PROCESSING
+  SUCCEEDED
+  FAILED
+  REFUNDED
+  CANCELLED
+}
+
+
+// ============================================================
+// AUTHENTICATION (Better Auth)
+// ============================================================
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  ipAddress String?
+  userAgent String?
+
+  userId String
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@map("sessions")
+}
+
+model Account {
+  id                    String   @id
+  accountId             String
+  providerId            String
+  userId                String
+  issuer                String?
+
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?  @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([providerId, accountId])
+  @@index([userId])
+  @@map("accounts")
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([identifier])
+  @@index([expiresAt])
+  @@map("verifications")
+}
+
+model TwoFactor {
+  id          String @id @default(cuid())
+  secret      String
+  backupCodes String
+  userId      String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("two_factors")
+}
+
+
+// ============================================================
+// USERS
+// ============================================================
+
+model User {
+  id               String     @id @default(cuid())
+  email            String     @unique
+  emailVerified    Boolean    @default(false)
+  name             String?
+  image            String?
+  role             UserRole   @default(CLIENT)
+  status           UserStatus @default(ACTIVE)
+  passwordHash     String?
+  lastLoginAt      DateTime?
+  twoFactorEnabled Boolean    @default(false)
+  twoFactorSecret  String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  sessions       Session[]
+  accounts       Account[]
+  twoFactors     TwoFactor[]
+  blogPosts      BlogPost[]     @relation("BlogAuthor")
+  leadActivities LeadActivity[] @relation("LeadActivityCreator")
+  proposals      Proposal[]     @relation("ProposalCreator")
+  notifications  Notification[]
+  staffProfile   Staff?
+  clientProfile  Client?
+
+  @@index([email])
+  @@index([role])
+  @@index([status])
+  @@map("users")
+}
+
+
+// ============================================================
+// STAFF
+// ============================================================
+
+model Staff {
+  id          String      @id @default(cuid())
+  userId      String?     @unique
+  employeeId  String?     @unique
+  fullName    String
+  email       String      @unique
+  phone       String?
+  role        StaffRole   @default(SUPPORT)
+  status      StaffStatus @default(ACTIVE)
+  designation String?
+  department  String?
+  bio         String?     @db.Text
+  avatar      String?
+  hireDate    DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  assignedLeads          Lead[]         @relation("LeadAssignedTo")
+  assignedConsultations  Consultation[] @relation("ConsultationAssignedTo")
+  assignedTasks          ProjectTask[]  @relation("TaskAssignee")
+  projectMemberships     ProjectMember[]
+
+  @@index([email])
+  @@index([role])
+  @@index([status])
+  @@map("staff")
+}
+
+
+// ============================================================
+// SERVICES
+// ============================================================
+
+model Service {
+  id             String   @id @default(cuid())
+  slug           String   @unique
+  name           String
+  shortName      String?
+  tagline        String?
+  description    String?  @db.Text
+  icon           String?
+  coverImage     String?
+  features       Json?
+  process        Json?
+  startingPrice  Decimal? @db.Decimal(12, 2)
+  currency       String   @default("USD")
+  isActive       Boolean  @default(true)
+  isFeatured     Boolean  @default(false)
+  order          Int      @default(0)
+  seoTitle       String?
+  seoDescription String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  portfolioItems PortfolioService[]
+  caseStudyItems CaseStudyService[]
+  leads          Lead[]
+  consultations  Consultation[]
+  proposalItems  ProposalItem[]
+  pricingPlans   PricingPlan[]
+
+  @@index([isActive])
+  @@index([isFeatured])
+  @@map("services")
+}
+
+
+// ============================================================
+// PRICING PLANS
+// ============================================================
+
+model PricingPlan {
+  id              String                      @id @default(cuid())
+  serviceId       String
+  slug            String                      @unique
+  name            String
+  description     String?                     @db.Text
+  price           Decimal                     @db.Decimal(12, 2)
+  currency        String                      @default("USD")
+  billingInterval PricingPlanBillingInterval  @default(ONE_TIME)
+  features        Json?
+  isPopular       Boolean                     @default(false)
+  isActive        Boolean                     @default(true)
+  order           Int                         @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  service       Service        @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  proposalItems ProposalItem[]
+
+  @@index([serviceId])
+  @@index([isActive])
+  @@map("pricing_plans")
+}
+
+
+// ============================================================
+// PORTFOLIO
+// ============================================================
+
+model Portfolio {
+  id             String        @id @default(cuid())
+  title          String
+  slug           String        @unique
+  clientName     String?
+  industry       String?
+  location       String?
+  websiteUrl     String?
+  coverImage     String?
+  description    String?       @db.Text
+  technologies   Json?
+  duration       String?
+  results        Json?
+  seoTitle       String?
+  seoDescription String?
+  status         ContentStatus @default(DRAFT)
+  isFeatured     Boolean       @default(false)
+  publishedAt    DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  images   PortfolioImage[]
+  services PortfolioService[]
+
+  @@index([status])
+  @@index([isFeatured])
+  @@index([publishedAt])
+  @@map("portfolio")
+}
+
+model PortfolioImage {
+  id          String   @id @default(cuid())
+  portfolioId String
+  url         String
+  altText     String?
+  caption     String?
+  order       Int      @default(0)
+
+  createdAt DateTime @default(now())
+
+  portfolio Portfolio @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+
+  @@index([portfolioId])
+  @@map("portfolio_images")
+}
+
+model PortfolioService {
+  id          String @id @default(cuid())
+  portfolioId String
+  serviceId   String
+
+  portfolio Portfolio @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+  service   Service   @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+
+  @@unique([portfolioId, serviceId])
+  @@index([portfolioId])
+  @@index([serviceId])
+  @@map("portfolio_services")
+}
+
+
+// ============================================================
+// CASE STUDIES
+// ============================================================
+
+model CaseStudy {
+  id             String        @id @default(cuid())
+  title          String
+  slug           String        @unique
+  clientName     String?
+  industry       String?
+  location       String?
+  coverImage     String?
+  problem        String?       @db.Text
+  strategy       String?       @db.Text
+  implementation String?       @db.Text
+  results        String?       @db.Text
+  metrics        Json?
+  seoTitle       String?
+  seoDescription String?
+  status         ContentStatus @default(DRAFT)
+  isFeatured     Boolean       @default(false)
+  publishedAt    DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  services CaseStudyService[]
+
+  @@index([status])
+  @@index([isFeatured])
+  @@index([publishedAt])
+  @@map("case_studies")
+}
+
+model CaseStudyService {
+  id          String @id @default(cuid())
+  caseStudyId String
+  serviceId   String
+
+  caseStudy CaseStudy @relation(fields: [caseStudyId], references: [id], onDelete: Cascade)
+  service   Service   @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+
+  @@unique([caseStudyId, serviceId])
+  @@index([caseStudyId])
+  @@index([serviceId])
+  @@map("case_study_services")
+}
+
+
+// ============================================================
+// TESTIMONIALS
+// ============================================================
+
+model Testimonial {
+  id          String        @id @default(cuid())
+  clientName  String
+  clientRole  String?
+  companyName String?
+  clientImage String?
+  content     String        @db.Text
+  rating      Int           @default(5)
+  serviceName String?
+  status      ContentStatus @default(DRAFT)
+  isFeatured  Boolean       @default(false)
+  publishedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status])
+  @@index([isFeatured])
+  @@map("testimonials")
+}
+
+
+// ============================================================
+// FAQ
+// ============================================================
+
+model FAQ {
+  id       String  @id @default(cuid())
+  question String
+  answer   String  @db.Text
+  category String?
+  isActive Boolean @default(true)
+  order    Int     @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([category])
+  @@index([isActive])
+  @@index([order])
+  @@map("faqs")
+}
+
+
+// ============================================================
+// BLOG
+// ============================================================
+
+model BlogCategory {
+  id          String  @id @default(cuid())
+  name        String
+  slug        String  @unique
+  description String? @db.Text
+  isActive    Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  posts BlogPost[]
+
+  @@index([isActive])
+  @@map("blog_categories")
+}
+
+model BlogPost {
+  id             String        @id @default(cuid())
+  categoryId     String?
+  authorId       String?
+  title          String
+  slug           String        @unique
+  excerpt        String?       @db.Text
+  content        String        @db.Text
+  featuredImage  String?
+  seoTitle       String?
+  seoDescription String?
+  canonicalUrl   String?
+  schemaMarkup   Json?
+  status         ContentStatus @default(DRAFT)
+  publishedAt    DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  category BlogCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  author   User?         @relation("BlogAuthor", fields: [authorId], references: [id], onDelete: SetNull)
+  tags     BlogPostTag[]
+
+  @@index([categoryId])
+  @@index([authorId])
+  @@index([status])
+  @@index([publishedAt])
+  @@map("blog_posts")
+}
+
+model BlogTag {
+  id   String @id @default(cuid())
+  name String
+  slug String @unique
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  posts BlogPostTag[]
+
+  @@map("blog_tags")
+}
+
+model BlogPostTag {
+  id     String @id @default(cuid())
+  postId String
+  tagId  String
+
+  post BlogPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  tag  BlogTag  @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, tagId])
+  @@index([postId])
+  @@index([tagId])
+  @@map("blog_post_tags")
+}
+
+
+// ============================================================
+// MEDIA
+// ============================================================
+
+model Media {
+  id       String       @id @default(cuid())
+  fileName String
+  url      String
+  publicId String?
+  mimeType String?
+  size     Int?
+  category FileCategory @default(IMAGE)
+  altText  String?
+  caption  String?
+  width    Int?
+  height   Int?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([category])
+  @@index([fileName])
+  @@map("media")
+}
+
+
+// ============================================================
+// LEAD MANAGEMENT
+// ============================================================
+
+model Lead {
+  id              String       @id @default(cuid())
+  serviceId       String?
+  clientId        String?
+  name            String
+  email           String
+  phone           String?
+  company         String?
+  website         String?
+  location        String?
+  budget          String?
+  timeline        String?
+  message         String?      @db.Text
+  status          LeadStatus   @default(NEW)
+  priority        LeadPriority @default(MEDIUM)
+  source          LeadSource   @default(WEBSITE)
+  followUpAt      DateTime?
+  assignedStaffId String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  service       Service? @relation(fields: [serviceId], references: [id], onDelete: SetNull)
+  client        Client?  @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  assignedStaff Staff?   @relation("LeadAssignedTo", fields: [assignedStaffId], references: [id], onDelete: SetNull)
+
+  notes         LeadNote[]
+  activities    LeadActivity[]
+  consultations Consultation[]
+  proposals     Proposal[]
+
+  @@index([serviceId])
+  @@index([clientId])
+  @@index([status])
+  @@index([priority])
+  @@index([source])
+  @@index([assignedStaffId])
+  @@index([followUpAt])
+  @@index([createdAt])
+  @@map("leads")
+}
+
+model LeadNote {
+  id      String @id @default(cuid())
+  leadId  String
+  content String @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  lead Lead @relation(fields: [leadId], references: [id], onDelete: Cascade)
+
+  @@index([leadId])
+  @@map("lead_notes")
+}
+
+model LeadActivity {
+  id          String           @id @default(cuid())
+  leadId      String
+  type        LeadActivityType
+  description String           @db.Text
+  metadata    Json?
+  createdById String?
+
+  createdAt DateTime @default(now())
+
+  lead      Lead  @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  createdBy User? @relation("LeadActivityCreator", fields: [createdById], references: [id], onDelete: SetNull)
+
+  @@index([leadId])
+  @@index([type])
+  @@index([createdById])
+  @@index([createdAt])
+  @@map("lead_activities")
+}
+
+
+// ============================================================
+// CONSULTATION
+// ============================================================
+
+model Consultation {
+  id              String             @id @default(cuid())
+  leadId          String
+  serviceId       String?
+  preferredDate   DateTime?
+  preferredTime   String?
+  status          ConsultationStatus @default(PENDING)
+  notes           String?            @db.Text
+  assignedStaffId String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  lead          Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  service       Service? @relation(fields: [serviceId], references: [id], onDelete: SetNull)
+  assignedStaff Staff?   @relation("ConsultationAssignedTo", fields: [assignedStaffId], references: [id], onDelete: SetNull)
+
+  @@index([leadId])
+  @@index([serviceId])
+  @@index([assignedStaffId])
+  @@index([status])
+  @@index([preferredDate])
+  @@map("consultations")
+}
+
+
+// ============================================================
+// CLIENT
+// ============================================================
+
+model Client {
+  id       String  @id @default(cuid())
+  userId   String? @unique
+  name     String
+  email    String
+  phone    String?
+  company  String?
+  website  String?
+  location String?
+  notes    String? @db.Text
+  isActive Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user          User?                @relation(fields: [userId], references: [id], onDelete: SetNull)
+  leads         Lead[]
+  projects      Project[]
+  proposals     Proposal[]
+  reviews       ClientReview[]
+  appreciations ClientAppreciation[]
+  payments      Payment[]
+
+  @@index([name])
+  @@index([email])
+  @@index([company])
+  @@index([isActive])
+  @@map("clients")
+}
+
+
+// ============================================================
+// PROJECT
+// ============================================================
+
+model Project {
+  id          String        @id @default(cuid())
+  clientId    String?
+  name        String
+  slug        String        @unique
+  projectType ProjectType   @default(CLIENT_PROJECT)
+  status      ProjectStatus @default(PLANNING)
+  description String?       @db.Text
+  budget      Decimal?      @db.Decimal(12, 2)
+  currency    String        @default("USD")
+  startDate   DateTime?
+  deadline    DateTime?
+  completedAt DateTime?
+  progress    Int           @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  client        Client?              @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  members       ProjectMember[]
+  milestones    ProjectMilestone[]
+  tasks         ProjectTask[]
+  files         ProjectFile[]
+  reviews       ClientReview[]
+  appreciations ClientAppreciation[]
+  proposals     Proposal[]
+
+  keywordRankings       KeywordRanking[]
+  backlinks             Backlink[]
+  citations             Citation[]
+  googleBusinessProfile GoogleBusinessProfile?
+  seoAudits             SEOAudit[]
+  performanceReports    PerformanceReport[]
+  reviewMonitors        ReviewMonitor[]
+  serviceAreas          ServiceArea[]
+  callLogs              CallLog[]
+  trackingConfig        TrackingConfig?
+
+  @@index([clientId])
+  @@index([status])
+  @@index([projectType])
+  @@index([deadline])
+  @@map("projects")
+}
+
+
+// ============================================================
+// PROJECT MEMBERS
+// ============================================================
+
+model ProjectMember {
+  id        String            @id @default(cuid())
+  projectId String
+  staffId   String
+  role      ProjectMemberRole @default(MEMBER)
+
+  createdAt DateTime @default(now())
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  staff   Staff   @relation(fields: [staffId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, staffId])
+  @@index([projectId])
+  @@index([staffId])
+  @@map("project_members")
+}
+
+
+// ============================================================
+// PROJECT MILESTONE
+// ============================================================
+
+model ProjectMilestone {
+  id          String          @id @default(cuid())
+  projectId   String
+  title       String
+  description String?         @db.Text
+  status      MilestoneStatus @default(PENDING)
+  startDate   DateTime?
+  dueDate     DateTime?
+  completedAt DateTime?
+  order       Int             @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  tasks   ProjectTask[]
+
+  @@index([projectId])
+  @@index([status])
+  @@index([dueDate])
+  @@map("project_milestones")
+}
+
+
+// ============================================================
+// PROJECT TASK
+// ============================================================
+
+model ProjectTask {
+  id              String       @id @default(cuid())
+  projectId       String
+  milestoneId     String?
+  assignedStaffId String?
+  title           String
+  description     String?      @db.Text
+  status          TaskStatus   @default(TODO)
+  priority        TaskPriority @default(MEDIUM)
+  dueDate         DateTime?
+  completedAt     DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  project       Project           @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  milestone     ProjectMilestone? @relation(fields: [milestoneId], references: [id], onDelete: SetNull)
+  assignedStaff Staff?            @relation("TaskAssignee", fields: [assignedStaffId], references: [id], onDelete: SetNull)
+
+  @@index([projectId])
+  @@index([milestoneId])
+  @@index([assignedStaffId])
+  @@index([status])
+  @@index([priority])
+  @@index([dueDate])
+  @@map("project_tasks")
+}
+
+
+// ============================================================
+// PROJECT FILE
+// ============================================================
+
+model ProjectFile {
+  id          String       @id @default(cuid())
+  projectId   String
+  fileName    String
+  fileUrl     String
+  publicId    String?
+  mimeType    String?
+  size        Int?
+  category    FileCategory @default(DOCUMENT)
+  description String?
+
+  createdAt DateTime @default(now())
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+  @@index([category])
+  @@map("project_files")
+}
+
+
+// ============================================================
+// PROPOSALS
+// ============================================================
+
+model Proposal {
+  id             String         @id @default(cuid())
+  leadId         String?
+  clientId       String?
+  projectId      String?
+  proposalNumber String         @unique
+  title          String
+  introduction   String?        @db.Text
+  terms          String?        @db.Text
+  notes          String?        @db.Text
+  subtotal       Decimal        @db.Decimal(12, 2)
+  discount       Decimal        @default(0) @db.Decimal(12, 2)
+  tax            Decimal        @default(0) @db.Decimal(12, 2)
+  total          Decimal        @db.Decimal(12, 2)
+  currency       String         @default("USD")
+  status         ProposalStatus @default(DRAFT)
+  validUntil     DateTime?
+  sentAt         DateTime?
+  viewedAt       DateTime?
+  acceptedAt     DateTime?
+  rejectedAt     DateTime?
+  createdById    String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  lead      Lead?    @relation(fields: [leadId], references: [id], onDelete: SetNull)
+  client    Client?  @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  project   Project? @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  createdBy User     @relation("ProposalCreator", fields: [createdById], references: [id], onDelete: Restrict)
+  items     ProposalItem[]
+  payments  Payment[]
+
+  @@index([leadId])
+  @@index([clientId])
+  @@index([projectId])
+  @@index([createdById])
+  @@index([status])
+  @@index([validUntil])
+  @@index([createdAt])
+  @@map("proposals")
+}
+
+model ProposalItem {
+  id            String  @id @default(cuid())
+  proposalId    String
+  serviceId     String?
+  pricingPlanId String?
+  title         String
+  description   String? @db.Text
+  quantity      Int     @default(1)
+  unitPrice     Decimal @db.Decimal(12, 2)
+  total         Decimal @db.Decimal(12, 2)
+
+  createdAt DateTime @default(now())
+
+  proposal    Proposal     @relation(fields: [proposalId], references: [id], onDelete: Cascade)
+  service     Service?     @relation(fields: [serviceId], references: [id], onDelete: SetNull)
+  pricingPlan PricingPlan? @relation(fields: [pricingPlanId], references: [id], onDelete: SetNull)
+
+  @@index([proposalId])
+  @@index([serviceId])
+  @@index([pricingPlanId])
+  @@map("proposal_items")
+}
+
+
+// ============================================================
+// PAYMENTS
+// ============================================================
+
+model Payment {
+  id                String          @id @default(cuid())
+  proposalId        String?
+  clientId          String?
+  provider          PaymentProvider
+  providerPaymentId String?         @unique
+  amount            Decimal         @db.Decimal(12, 2)
+  currency          String          @default("USD")
+  status            PaymentStatus   @default(PENDING)
+  method            String?
+  paidAt            DateTime?
+  metadata          Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  proposal Proposal? @relation(fields: [proposalId], references: [id], onDelete: SetNull)
+  client   Client?   @relation(fields: [clientId], references: [id], onDelete: SetNull)
+
+  @@index([proposalId])
+  @@index([clientId])
+  @@index([status])
+  @@index([provider])
+  @@map("payments")
+}
+
+
+// ============================================================
+// CLIENT REVIEWS
+// ============================================================
+
+model ClientReview {
+  id             String  @id @default(cuid())
+  clientId       String
+  projectId      String?
+  rating         Int     @default(5)
+  title          String?
+  content        String  @db.Text
+  serviceQuality Int?
+  communication  Int?
+  delivery       Int?
+  isApproved     Boolean @default(false)
+  isFeatured     Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  client  Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  project Project? @relation(fields: [projectId], references: [id], onDelete: SetNull)
+
+  @@index([clientId])
+  @@index([projectId])
+  @@index([rating])
+  @@index([isApproved])
+  @@index([isFeatured])
+  @@map("client_reviews")
+}
+
+
+// ============================================================
+// CLIENT APPRECIATION
+// ============================================================
+
+model ClientAppreciation {
+  id          String                 @id @default(cuid())
+  clientId    String
+  projectId   String?
+  type        ClientAppreciationType
+  amount      Decimal?               @db.Decimal(12, 2)
+  currency    String?
+  title       String?
+  description String?                @db.Text
+  receivedAt  DateTime               @default(now())
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  client  Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  project Project? @relation(fields: [projectId], references: [id], onDelete: SetNull)
+
+  @@index([clientId])
+  @@index([projectId])
+  @@index([type])
+  @@index([receivedAt])
+  @@map("client_appreciations")
+}
+
+
+// ============================================================
+// CONTACT MESSAGES
+// ============================================================
+
+model ContactMessage {
+  id        String               @id @default(cuid())
+  name      String
+  email     String
+  phone     String?
+  company   String?
+  subject   String?
+  message   String               @db.Text
+  status    ContactMessageStatus @default(UNREAD)
+  repliedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([email])
+  @@index([status])
+  @@index([createdAt])
+  @@map("contact_messages")
+}
+
+
+// ============================================================
+// NOTIFICATIONS
+// ============================================================
+
+model Notification {
+  id         String                  @id @default(cuid())
+  userId     String
+  type       NotificationType
+  entityType NotificationEntityType?
+  entityId   String?
+  title      String
+  message    String                  @db.Text
+  isRead     Boolean                 @default(false)
+  readAt     DateTime?
+
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([isRead])
+  @@index([type])
+  @@index([createdAt])
+  @@index([entityType, entityId])
+  @@map("notifications")
+}
+
+
+// ============================================================
+// SITE SETTINGS
+// ============================================================
+
+model SiteSetting {
+  id          String  @id @default(cuid())
+  key         String  @unique
+  value       String? @db.Text
+  description String?
+
+  updatedAt DateTime @updatedAt
+
+  @@map("site_settings")
+}
+
+
+// ============================================================
+// SEO DELIVERABLES & REPORTING
+// ============================================================
+
+model KeywordRanking {
+  id           String              @id @default(cuid())
+  projectId    String
+  keyword      String
+  targetUrl    String?
+  searchEngine RankingSearchEngine @default(GOOGLE)
+  device       RankingDevice       @default(DESKTOP)
+  location     String?
+  rank         Int?
+  previousRank Int?
+  checkedAt    DateTime            @default(now())
+
+  createdAt DateTime @default(now())
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+  @@index([keyword])
+  @@index([checkedAt])
+  @@map("keyword_rankings")
+}
+
+model Backlink {
+  id              String         @id @default(cuid())
+  projectId       String
+  sourceUrl       String
+  targetUrl       String
+  anchorText      String?
+  domainAuthority Int?
+  status          BacklinkStatus @default(PROSPECTING)
+  acquiredAt      DateTime?
+  notes           String?        @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+  @@index([status])
+  @@map("backlinks")
+}
+
+model Citation {
+  id            String         @id @default(cuid())
+  projectId     String
+  directoryName String
+  url           String?
+  status        CitationStatus @default(PENDING)
+  submittedAt   DateTime?
+  notes         String?        @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+  @@index([status])
+  @@map("citations")
+}
+
+model GoogleBusinessProfile {
+  id              String    @id @default(cuid())
+  projectId       String    @unique
+  businessName    String
+  gbpUrl          String?
+  category        String?
+  address         String?
+  phone           String?
+  isVerified      Boolean   @default(false)
+  lastOptimizedAt DateTime?
+  notes           String?   @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@map("google_business_profiles")
+}
+
+model SEOAudit {
+  id        String   @id @default(cuid())
+  projectId String
+  title     String?
+  auditDate DateTime @default(now())
+  score     Int?
+  issues    Json?
+  reportUrl String?
+  summary   String?  @db.Text
+
+  createdAt DateTime @default(now())
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+  @@index([auditDate])
+  @@map("seo_audits")
+}
+
+model PerformanceReport {
+  id               String        @id @default(cuid())
+  projectId        String
+  pageUrl          String
+  device           RankingDevice @default(MOBILE)
+  performanceScore Int?
+  seoScore         Int?
+  metrics          Json?
+  reportUrl        String?
+  checkedAt        DateTime      @default(now())
+
+  createdAt DateTime @default(now())
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+  @@index([checkedAt])
+  @@map("performance_reports")
+}
+
+model ReviewMonitor {
+  id          String         @id @default(cuid())
+  projectId   String
+  platform    ReviewPlatform @default(GOOGLE)
+  rating      Decimal?       @db.Decimal(2, 1)
+  reviewCount Int?
+  checkedAt   DateTime       @default(now())
+
+  createdAt DateTime @default(now())
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+  @@index([platform])
+  @@map("review_monitors")
+}
+
+model ServiceArea {
+  id          String    @id @default(cuid())
+  projectId   String
+  city        String
+  state       String?
+  slug        String
+  pageUrl     String?
+  publishedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, slug])
+  @@index([projectId])
+  @@map("service_areas")
+}
+
+model CallLog {
+  id            String     @id @default(cuid())
+  projectId     String
+  twilioCallSid String?    @unique
+  fromNumber    String
+  toNumber      String?
+  duration      Int?
+  recordingUrl  String?
+  status        CallStatus @default(COMPLETED)
+  receivedAt    DateTime   @default(now())
+
+  createdAt DateTime @default(now())
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+  @@index([receivedAt])
+  @@map("call_logs")
+}
+
+model TrackingConfig {
+  id               String  @id @default(cuid())
+  projectId        String  @unique
+  ga4MeasurementId String?
+  gtmContainerId   String?
+  metaPixelId      String?
+  whatsappNumber   String?
+  conversionGoals  Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@map("tracking_configs")
+}

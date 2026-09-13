@@ -1,0 +1,114 @@
+import { StatusCodes } from "http-status-codes";
+
+import AppError from "../../errors/appError";
+import { QueryBuilder } from "../../queryBuilder";
+import type { PrismaDelegate } from "../../queryBuilder";
+import { prisma } from "../../../lib/prisma";
+import { Prisma } from "../../../generated/prisma/client";
+import type { Service } from "../../../generated/prisma/client";
+import { serviceQueryConfig } from "./service.constant";
+
+type CreateServiceInput = {
+	slug: string;
+	name: string;
+	shortName?: string;
+	tagline?: string;
+	description?: string;
+	icon?: string;
+	coverImage?: string;
+	features?: unknown;
+	process?: unknown;
+	startingPrice?: number;
+	currency: string;
+	isActive: boolean;
+	isFeatured: boolean;
+	order: number;
+	seoTitle?: string;
+	seoDescription?: string;
+};
+
+type UpdateServiceInput = Partial<Omit<CreateServiceInput, "currency" | "isActive" | "isFeatured" | "order">> & {
+	currency?: string;
+	isActive?: boolean;
+	isFeatured?: boolean;
+	order?: number;
+};
+
+const serviceDelegate = prisma.service as unknown as PrismaDelegate<Service>;
+
+const toPrismaData = <T extends { startingPrice?: number | null; features?: unknown; process?: unknown }>(
+	payload: T,
+) => ({
+	...payload,
+	...(payload.startingPrice !== undefined && {
+		startingPrice: payload.startingPrice === null ? null : new Prisma.Decimal(payload.startingPrice),
+	}),
+	...(payload.features !== undefined && { features: payload.features as Prisma.InputJsonValue | null }),
+	...(payload.process !== undefined && { process: payload.process as Prisma.InputJsonValue | null }),
+});
+
+export const createServiceInDB = async (payload: CreateServiceInput) => {
+	return prisma.service.create({ data: toPrismaData(payload) });
+};
+
+export const getAllServicesFromDB = async (query: Record<string, unknown>, { publicOnly }: { publicOnly: boolean }) => {
+	const effectiveQuery: Record<string, unknown> = { ...query };
+
+	if (publicOnly) {
+		effectiveQuery.isActive = "true";
+	}
+
+	// Ascending "order" by default — see the comment in service.constant.ts for why
+	// this can't just be QueryConfig.defaultSortField.
+	if (!effectiveQuery.sort && !effectiveQuery.sortBy) {
+		effectiveQuery.sortBy = "order";
+		effectiveQuery.sortOrder = "asc";
+	}
+
+	const queryBuilder = new QueryBuilder<Service>(serviceDelegate, serviceQueryConfig);
+	return queryBuilder.execute(effectiveQuery);
+};
+
+export const getServiceBySlugFromDB = async (slug: string, { publicOnly }: { publicOnly: boolean }) => {
+	const service = await prisma.service.findUnique({
+		where: { slug },
+		include: { pricingPlans: { where: publicOnly ? { isActive: true } : undefined, orderBy: { order: "asc" } } },
+	});
+
+	if (!service || (publicOnly && !service.isActive)) {
+		throw new AppError(StatusCodes.NOT_FOUND, "Service not found.");
+	}
+
+	return service;
+};
+
+export const getServiceByIdFromDB = async (id: string) => {
+	const service = await prisma.service.findUnique({
+		where: { id },
+		include: { pricingPlans: { orderBy: { order: "asc" } } },
+	});
+
+	if (!service) {
+		throw new AppError(StatusCodes.NOT_FOUND, "Service not found.");
+	}
+
+	return service;
+};
+
+export const updateServiceInDB = async (id: string, payload: UpdateServiceInput) => {
+	const existing = await prisma.service.findUnique({ where: { id } });
+	if (!existing) {
+		throw new AppError(StatusCodes.NOT_FOUND, "Service not found.");
+	}
+
+	return prisma.service.update({ where: { id }, data: toPrismaData(payload) });
+};
+
+export const deleteServiceFromDB = async (id: string) => {
+	const existing = await prisma.service.findUnique({ where: { id } });
+	if (!existing) {
+		throw new AppError(StatusCodes.NOT_FOUND, "Service not found.");
+	}
+
+	await prisma.service.delete({ where: { id } });
+};

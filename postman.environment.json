@@ -1,0 +1,283 @@
+{
+  "id": "agency-backend-local",
+  "name": "Agency Backend - Local",
+  "values": [
+    {
+      "key": "appreciationId",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "backlinkId",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "blogCategoryId",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "blogPostId",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "blogPostSlug",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "blogTagId",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "callLogId",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "caseStudyId",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "caseStudySlug",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "citationId",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "clientId",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "clientReviewId",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "clientUrl",
+      "value": "http://localhost:3000",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "consultationId",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "contactMessageId",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "email",
+      "value": "testuser@example.com",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "faqId",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "keywordRankingId",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "leadId",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "mediaId",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "milestoneId",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "notificationId",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "otp",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "password",
+      "value": "TestPass123!",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "paymentId",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "performanceReportId",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "portfolioId",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "portfolioImageId",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "portfolioSlug",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "pricingPlanId",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "projectFileId",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "projectId",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "projectMemberId",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "proposalId",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "resetToken",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "reviewMonitorId",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "seoAuditId",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "serviceAreaId",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "serviceId",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "serviceSlug",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "staffId",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "taskId",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "testimonialId",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "userId",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "userName",
+      "value": "Test User",
+      "type": "default",
+      "enabled": true
+    }
+  ],
+  "_postman_variable_scope": "environment"
+}
