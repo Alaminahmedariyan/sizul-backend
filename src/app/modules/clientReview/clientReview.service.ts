@@ -4,6 +4,7 @@ import AppError from "../../errors/appError";
 import { QueryBuilder } from "../../queryBuilder";
 import type { PrismaDelegate } from "../../queryBuilder";
 import { prisma } from "../../../lib/prisma";
+import { Prisma } from "../../../generated/prisma/client";
 import type { ClientReview } from "../../../generated/prisma/client";
 import { clientReviewQueryConfig } from "./clientReview.constant";
 import { notifyAdmins } from "../notification/notification.service";
@@ -42,7 +43,7 @@ export const createMyClientReviewInDB = async (userId: string, payload: CreateRe
 		}
 	}
 
-	const review = await prisma.clientReview.create({ data: { ...payload, clientId } });
+	const review = await prisma.clientReview.create({ data: { ...payload, clientId } as Prisma.ClientReviewUncheckedCreateInput });
 
 	try {
 		await notifyAdmins({

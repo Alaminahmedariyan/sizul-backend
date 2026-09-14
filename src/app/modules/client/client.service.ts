@@ -4,6 +4,7 @@ import AppError from "../../errors/appError";
 import { QueryBuilder } from "../../queryBuilder";
 import type { PrismaDelegate } from "../../queryBuilder";
 import { prisma } from "../../../lib/prisma";
+import { Prisma } from "../../../generated/prisma/client";
 import type { Client } from "../../../generated/prisma/client";
 import { clientQueryConfig } from "./client.constant";
 
@@ -48,7 +49,7 @@ export const createClientInDB = async (payload: CreateClientInput) => {
 		await assertUserExistsAndUnlinked(payload.userId);
 	}
 
-	return prisma.client.create({ data: payload });
+	return prisma.client.create({ data: payload as Prisma.ClientUncheckedCreateInput });
 };
 
 export const getAllClientsFromDB = async (query: Record<string, unknown>) => {
@@ -89,7 +90,7 @@ export const updateClientInDB = async (id: string, payload: UpdateClientInput) =
 		await assertUserExistsAndUnlinked(payload.userId, id);
 	}
 
-	return prisma.client.update({ where: { id }, data: payload });
+	return prisma.client.update({ where: { id }, data: payload as Prisma.ClientUncheckedUpdateInput });
 };
 
 export const updateMyClientProfileInDB = async (userId: string, payload: UpdateMyClientProfileInput) => {
@@ -98,7 +99,7 @@ export const updateMyClientProfileInDB = async (userId: string, payload: UpdateM
 		throw new AppError(StatusCodes.NOT_FOUND, "No client profile is linked to your account.");
 	}
 
-	return prisma.client.update({ where: { userId }, data: payload });
+	return prisma.client.update({ where: { userId }, data: payload as Prisma.ClientUncheckedUpdateInput });
 };
 
 export const updateClientActiveInDB = async (id: string, isActive: boolean) => {

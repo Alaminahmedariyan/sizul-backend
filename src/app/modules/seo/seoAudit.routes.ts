@@ -42,7 +42,9 @@ const assertExists = async (id: string) => {
 const createRecord = async (payload: z.infer<typeof createValidation>) => {
 	await assertProjectExists(payload.projectId);
 	const { issues, ...rest } = payload;
-	const audit = await prisma.sEOAudit.create({ data: { ...rest, ...(issues !== undefined && { issues: issues as Prisma.InputJsonValue }) } });
+	const audit = await prisma.sEOAudit.create({
+		data: { ...rest, ...(issues !== undefined && { issues: issues as Prisma.InputJsonValue }) } as Prisma.SEOAuditUncheckedCreateInput,
+	});
 
 	try {
 		const project = await prisma.project.findUnique({ where: { id: payload.projectId }, include: { client: true } });

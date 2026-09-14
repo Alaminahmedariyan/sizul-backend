@@ -30,7 +30,9 @@ const postDelegate = prisma.blogPost as unknown as PrismaDelegate<BlogPost>;
 
 const toPrismaData = <T extends { schemaMarkup?: unknown }>(payload: T) => ({
 	...payload,
-	...(payload.schemaMarkup !== undefined && { schemaMarkup: payload.schemaMarkup as Prisma.InputJsonValue | null }),
+	...(payload.schemaMarkup !== undefined && {
+		schemaMarkup: payload.schemaMarkup === null ? Prisma.JsonNull : (payload.schemaMarkup as Prisma.InputJsonValue),
+	}),
 });
 
 const assertCategoryExists = async (categoryId: string) => {
@@ -77,7 +79,7 @@ export const createBlogPostInDB = async (payload: CreatePostInput, authorId?: st
 	const { tagIds, ...rest } = payload;
 
 	const post = await prisma.blogPost.create({
-		data: { ...toPrismaData(rest), ...(authorId !== undefined && { authorId }) },
+		data: { ...toPrismaData(rest), ...(authorId !== undefined && { authorId }) } as Prisma.BlogPostUncheckedCreateInput,
 	});
 
 	if (tagIds.length > 0) {
@@ -143,7 +145,7 @@ export const updateBlogPostInDB = async (id: string, payload: UpdatePostInput) =
 
 	const { tagIds, ...rest } = payload;
 
-	const updated = await prisma.blogPost.update({ where: { id }, data: toPrismaData(rest) });
+	const updated = await prisma.blogPost.update({ where: { id }, data: toPrismaData(rest) as Prisma.BlogPostUncheckedUpdateInput });
 
 	if (tagIds) {
 		await setPostTags(id, tagIds);

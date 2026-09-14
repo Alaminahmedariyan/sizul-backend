@@ -33,8 +33,12 @@ const portfolioDelegate = prisma.portfolio as unknown as PrismaDelegate<Portfoli
 
 const toPrismaData = <T extends { technologies?: unknown; results?: unknown }>(payload: T) => ({
 	...payload,
-	...(payload.technologies !== undefined && { technologies: payload.technologies as Prisma.InputJsonValue | null }),
-	...(payload.results !== undefined && { results: payload.results as Prisma.InputJsonValue | null }),
+	...(payload.technologies !== undefined && {
+		technologies: payload.technologies === null ? Prisma.JsonNull : (payload.technologies as Prisma.InputJsonValue),
+	}),
+	...(payload.results !== undefined && {
+		results: payload.results === null ? Prisma.JsonNull : (payload.results as Prisma.InputJsonValue),
+	}),
 });
 
 const assertPortfolioExists = async (id: string) => {
@@ -46,7 +50,7 @@ const assertPortfolioExists = async (id: string) => {
 };
 
 export const createPortfolioInDB = async (payload: CreatePortfolioInput) => {
-	return prisma.portfolio.create({ data: toPrismaData(payload) });
+	return prisma.portfolio.create({ data: toPrismaData(payload) as Prisma.PortfolioUncheckedCreateInput });
 };
 
 export const getAllPortfoliosFromDB = async (query: Record<string, unknown>, { publicOnly }: { publicOnly: boolean }) => {
@@ -87,7 +91,7 @@ export const getPortfolioByIdFromDB = async (id: string) => {
 
 export const updatePortfolioInDB = async (id: string, payload: UpdatePortfolioInput) => {
 	await assertPortfolioExists(id);
-	return prisma.portfolio.update({ where: { id }, data: toPrismaData(payload) });
+	return prisma.portfolio.update({ where: { id }, data: toPrismaData(payload) as Prisma.PortfolioUncheckedUpdateInput });
 };
 
 export const updatePortfolioStatusInDB = async (id: string, status: ContentStatus) => {
@@ -105,7 +109,7 @@ export const addPortfolioImageInDB = async (
 	payload: { url: string; altText?: string; caption?: string; order: number },
 ) => {
 	await assertPortfolioExists(portfolioId);
-	return prisma.portfolioImage.create({ data: { portfolioId, ...payload } });
+	return prisma.portfolioImage.create({ data: { portfolioId, ...payload } as Prisma.PortfolioImageUncheckedCreateInput });
 };
 
 export const removePortfolioImageFromDB = async (imageId: string) => {

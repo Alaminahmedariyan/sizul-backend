@@ -6,6 +6,7 @@ import AppError from "../../errors/appError";
 import { QueryBuilder } from "../../queryBuilder";
 import type { PrismaDelegate, QueryConfig } from "../../queryBuilder";
 import { prisma } from "../../../lib/prisma";
+import { Prisma } from "../../../generated/prisma/client";
 import type { CallLog } from "../../../generated/prisma/client";
 import { catchAsync } from "../../utils/catchAsync";
 import { sendResponse } from "../../utils/sendResponse";
@@ -47,7 +48,7 @@ const assertExists = async (id: string) => {
 
 const createRecord = async (payload: z.infer<typeof createValidation>) => {
 	await assertProjectExists(payload.projectId);
-	return prisma.callLog.create({ data: payload });
+	return prisma.callLog.create({ data: payload as Prisma.CallLogUncheckedCreateInput });
 };
 
 const deleteRecord = async (id: string) => {

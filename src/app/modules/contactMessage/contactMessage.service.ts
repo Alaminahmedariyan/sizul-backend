@@ -4,6 +4,7 @@ import AppError from "../../errors/appError";
 import { QueryBuilder } from "../../queryBuilder";
 import type { PrismaDelegate } from "../../queryBuilder";
 import { prisma } from "../../../lib/prisma";
+import { Prisma } from "../../../generated/prisma/client";
 import type { ContactMessage } from "../../../generated/prisma/client";
 import { contactMessageQueryConfig } from "./contactMessage.constant";
 import { notifyAdmins } from "../notification/notification.service";
@@ -28,7 +29,7 @@ export const createContactMessageInDB = async (payload: {
 	subject?: string;
 	message: string;
 }) => {
-	const contactMessage = await prisma.contactMessage.create({ data: payload });
+	const contactMessage = await prisma.contactMessage.create({ data: payload as Prisma.ContactMessageUncheckedCreateInput });
 
 	try {
 		await notifyAdmins({

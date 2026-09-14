@@ -4,6 +4,7 @@ import AppError from "../../errors/appError";
 import { QueryBuilder } from "../../queryBuilder";
 import type { PrismaDelegate } from "../../queryBuilder";
 import { prisma } from "../../../lib/prisma";
+import { Prisma } from "../../../generated/prisma/client";
 import type { Consultation } from "../../../generated/prisma/client";
 import { consultationQueryConfig } from "./consultation.constant";
 import { createNotification } from "../notification/notification.service";
@@ -55,7 +56,7 @@ export const createConsultationInDB = async (payload: CreateConsultationInput) =
 		await assertServiceExists(payload.serviceId);
 	}
 
-	const consultation = await prisma.consultation.create({ data: payload });
+	const consultation = await prisma.consultation.create({ data: payload as Prisma.ConsultationUncheckedCreateInput });
 
 	await prisma.leadActivity.create({
 		data: {
@@ -93,7 +94,7 @@ export const updateConsultationInDB = async (id: string, payload: UpdateConsulta
 		await assertServiceExists(payload.serviceId);
 	}
 
-	return prisma.consultation.update({ where: { id }, data: payload });
+	return prisma.consultation.update({ where: { id }, data: payload as Prisma.ConsultationUncheckedUpdateInput });
 };
 
 export const updateConsultationStatusInDB = async (id: string, status: ConsultationStatus) => {

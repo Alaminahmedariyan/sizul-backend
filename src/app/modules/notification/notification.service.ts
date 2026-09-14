@@ -4,6 +4,7 @@ import AppError from "../../errors/appError";
 import { QueryBuilder } from "../../queryBuilder";
 import type { PrismaDelegate } from "../../queryBuilder";
 import { prisma } from "../../../lib/prisma";
+import { Prisma } from "../../../generated/prisma/client";
 import type { Notification } from "../../../generated/prisma/client";
 import { notificationQueryConfig } from "./notification.constant";
 
@@ -25,7 +26,7 @@ export const createNotification = async (payload: {
 	entityId?: string;
 	title: string;
 	message: string;
-}) => prisma.notification.create({ data: payload });
+}) => prisma.notification.create({ data: payload as Prisma.NotificationUncheckedCreateInput });
 
 // Fan-out helper for events every Admin should see (new lead, new contact
 // message, new review). Each Admin gets their own Notification row.

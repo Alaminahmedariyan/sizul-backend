@@ -4,6 +4,7 @@ import AppError from "../../errors/appError";
 import { QueryBuilder } from "../../queryBuilder";
 import type { PrismaDelegate } from "../../queryBuilder";
 import { prisma } from "../../../lib/prisma";
+import { Prisma } from "../../../generated/prisma/client";
 import type { FAQ } from "../../../generated/prisma/client";
 import { faqQueryConfig } from "./faq.constant";
 
@@ -21,7 +22,7 @@ const assertFaqExists = async (id: string) => {
 };
 
 export const createFaqInDB = async (payload: CreateFaqInput) => {
-	return prisma.fAQ.create({ data: payload });
+	return prisma.fAQ.create({ data: payload as Prisma.FAQUncheckedCreateInput });
 };
 
 export const getAllFaqsFromDB = async (query: Record<string, unknown>, { publicOnly }: { publicOnly: boolean }) => {
@@ -44,7 +45,7 @@ export const getFaqByIdFromDB = async (id: string) => {
 
 export const updateFaqInDB = async (id: string, payload: UpdateFaqInput) => {
 	await assertFaqExists(id);
-	return prisma.fAQ.update({ where: { id }, data: payload });
+	return prisma.fAQ.update({ where: { id }, data: payload as Prisma.FAQUncheckedUpdateInput });
 };
 
 export const deleteFaqFromDB = async (id: string) => {

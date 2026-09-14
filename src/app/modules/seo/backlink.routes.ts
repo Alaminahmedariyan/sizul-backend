@@ -6,6 +6,7 @@ import AppError from "../../errors/appError";
 import { QueryBuilder } from "../../queryBuilder";
 import type { PrismaDelegate, QueryConfig } from "../../queryBuilder";
 import { prisma } from "../../../lib/prisma";
+import { Prisma } from "../../../generated/prisma/client";
 import type { Backlink } from "../../../generated/prisma/client";
 import { catchAsync } from "../../utils/catchAsync";
 import { sendResponse } from "../../utils/sendResponse";
@@ -59,12 +60,12 @@ const assertExists = async (id: string) => {
 
 const createRecord = async (payload: z.infer<typeof createValidation>) => {
 	await assertProjectExists(payload.projectId);
-	return prisma.backlink.create({ data: payload });
+	return prisma.backlink.create({ data: payload as Prisma.BacklinkUncheckedCreateInput });
 };
 
 const updateRecord = async (id: string, payload: z.infer<typeof updateValidation>) => {
 	await assertExists(id);
-	return prisma.backlink.update({ where: { id }, data: payload });
+	return prisma.backlink.update({ where: { id }, data: payload as Prisma.BacklinkUncheckedUpdateInput });
 };
 
 const updateStatus = async (id: string, status: z.infer<typeof backlinkStatusEnum>) => {

@@ -7,7 +7,10 @@ export const upsertSiteSettingInDB = async (payload: { key: string; value?: stri
 	return prisma.siteSetting.upsert({
 		where: { key: payload.key },
 		create: payload,
-		update: { value: payload.value, description: payload.description },
+		update: {
+			...(payload.value !== undefined && { value: payload.value }),
+			...(payload.description !== undefined && { description: payload.description }),
+		},
 	});
 };
 

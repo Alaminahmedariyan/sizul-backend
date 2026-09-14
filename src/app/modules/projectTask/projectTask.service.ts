@@ -4,6 +4,7 @@ import AppError from "../../errors/appError";
 import { QueryBuilder } from "../../queryBuilder";
 import type { PrismaDelegate } from "../../queryBuilder";
 import { prisma } from "../../../lib/prisma";
+import { Prisma } from "../../../generated/prisma/client";
 import type { ProjectTask } from "../../../generated/prisma/client";
 import { projectTaskQueryConfig } from "./projectTask.constant";
 import { createNotification } from "../notification/notification.service";
@@ -94,7 +95,7 @@ export const createTaskInDB = async (payload: CreateTaskInput) => {
 		await assertStaffExists(payload.assignedStaffId);
 	}
 
-	const task = await prisma.projectTask.create({ data: payload });
+	const task = await prisma.projectTask.create({ data: payload as Prisma.ProjectTaskUncheckedCreateInput });
 
 	if (payload.assignedStaffId) {
 		await notifyStaffOfTaskAssignment(payload.assignedStaffId, task.id, task.title);
@@ -131,7 +132,7 @@ export const updateTaskInDB = async (id: string, payload: UpdateTaskInput) => {
 		await assertStaffExists(payload.assignedStaffId);
 	}
 
-	const updated = await prisma.projectTask.update({ where: { id }, data: payload });
+	const updated = await prisma.projectTask.update({ where: { id }, data: payload as Prisma.ProjectTaskUncheckedUpdateInput });
 
 	if (payload.assignedStaffId && payload.assignedStaffId !== existing.assignedStaffId) {
 		await notifyStaffOfTaskAssignment(payload.assignedStaffId, id, updated.title);

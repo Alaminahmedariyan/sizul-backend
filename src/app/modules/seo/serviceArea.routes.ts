@@ -6,6 +6,7 @@ import AppError from "../../errors/appError";
 import { QueryBuilder } from "../../queryBuilder";
 import type { PrismaDelegate, QueryConfig } from "../../queryBuilder";
 import { prisma } from "../../../lib/prisma";
+import { Prisma } from "../../../generated/prisma/client";
 import type { ServiceArea } from "../../../generated/prisma/client";
 import { catchAsync } from "../../utils/catchAsync";
 import { sendResponse } from "../../utils/sendResponse";
@@ -58,12 +59,12 @@ const createRecord = async (payload: z.infer<typeof createValidation>) => {
 		throw new AppError(StatusCodes.CONFLICT, "A service area with this slug already exists for this project.");
 	}
 
-	return prisma.serviceArea.create({ data: payload });
+	return prisma.serviceArea.create({ data: payload as Prisma.ServiceAreaUncheckedCreateInput });
 };
 
 const updateRecord = async (id: string, payload: z.infer<typeof updateValidation>) => {
 	await assertExists(id);
-	return prisma.serviceArea.update({ where: { id }, data: payload });
+	return prisma.serviceArea.update({ where: { id }, data: payload as Prisma.ServiceAreaUncheckedUpdateInput });
 };
 
 const setPublished = async (id: string, publishedAt: Date | null) => {

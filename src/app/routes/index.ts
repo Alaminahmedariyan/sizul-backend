@@ -16,7 +16,6 @@ import { projectTaskRoutes } from "../modules/projectTask/projectTask.routes";
 import { projectFileRoutes } from "../modules/projectFile/projectFile.routes";
 import { clientReviewRoutes } from "../modules/clientReview/clientReview.routes";
 import { clientAppreciationRoutes } from "../modules/clientAppreciation/clientAppreciation.routes";
-import { portfolioRoutes } from "../modules/portfolio/portfolio.routes";
 import { caseStudyRoutes } from "../modules/caseStudy/caseStudy.routes";
 import { testimonialRoutes } from "../modules/testimonial/testimonial.routes";
 import { faqRoutes } from "../modules/faq/faq.routes";
@@ -38,6 +37,7 @@ import { contactMessageRoutes } from "../modules/contactMessage/contactMessage.r
 import { notificationRoutes } from "../modules/notification/notification.routes";
 import { siteSettingRoutes } from "../modules/siteSetting/siteSetting.routes";
 import { paymentRoutes } from "../modules/payment/payment.routes";
+import { portfolioRoutes } from "../modules/portfolio/portfolio.routes";
 
 const router = Router();
 

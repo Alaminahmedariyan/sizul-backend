@@ -62,7 +62,7 @@ export const createProjectInDB = async (payload: CreateProjectInput) => {
 		await assertClientExists(payload.clientId);
 	}
 
-	return prisma.project.create({ data: toPrismaData(payload) });
+	return prisma.project.create({ data: toPrismaData(payload) as Prisma.ProjectUncheckedCreateInput });
 };
 
 export const getAllProjectsFromDB = async (query: Record<string, unknown>) => {
@@ -96,7 +96,7 @@ export const updateProjectInDB = async (id: string, payload: UpdateProjectInput)
 		await assertClientExists(payload.clientId);
 	}
 
-	return prisma.project.update({ where: { id }, data: toPrismaData(payload) });
+	return prisma.project.update({ where: { id }, data: toPrismaData(payload) as Prisma.ProjectUncheckedUpdateInput });
 };
 
 export const updateProjectStatusInDB = async (id: string, status: ProjectStatus) => {

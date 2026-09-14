@@ -6,6 +6,7 @@ import AppError from "../../errors/appError";
 import { QueryBuilder } from "../../queryBuilder";
 import type { PrismaDelegate, QueryConfig } from "../../queryBuilder";
 import { prisma } from "../../../lib/prisma";
+import { Prisma } from "../../../generated/prisma/client";
 import type { KeywordRanking } from "../../../generated/prisma/client";
 import { catchAsync } from "../../utils/catchAsync";
 import { sendResponse } from "../../utils/sendResponse";
@@ -68,13 +69,13 @@ const createRecord = async (payload: z.infer<typeof createValidation>) => {
 	});
 
 	return prisma.keywordRanking.create({
-		data: { ...payload, previousRank: latest?.rank ?? null },
+		data: { ...payload, previousRank: latest?.rank ?? null } as Prisma.KeywordRankingUncheckedCreateInput,
 	});
 };
 
 const updateRecord = async (id: string, payload: z.infer<typeof updateValidation>) => {
 	await assertExists(id);
-	return prisma.keywordRanking.update({ where: { id }, data: payload });
+	return prisma.keywordRanking.update({ where: { id }, data: payload as Prisma.KeywordRankingUncheckedUpdateInput });
 };
 
 const deleteRecord = async (id: string) => {

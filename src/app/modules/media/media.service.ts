@@ -4,11 +4,12 @@ import AppError from "../../errors/appError";
 import { QueryBuilder } from "../../queryBuilder";
 import type { PrismaDelegate } from "../../queryBuilder";
 import { prisma } from "../../../lib/prisma";
+import { Prisma } from "../../../generated/prisma/client";
 import type { Media } from "../../../generated/prisma/client";
 // ADJUST THIS PATH if your Cloudinary upload util lives somewhere else (see the
 // note on this same import in projectFile.service.ts):
-import { deleteFileFromCloudinary, uploadFileToCloudinary } from "../../utils/fileUploader";
 import { mediaQueryConfig } from "./media.constant";
+import { deleteFileFromCloudinary, uploadFileToCloudinary } from "../../utils/fileUploader";
 
 type FileCategory = "IMAGE" | "VIDEO" | "DOCUMENT" | "AUDIO" | "OTHER";
 
@@ -66,7 +67,7 @@ export const updateMediaInDB = async (id: string, payload: { altText?: string | 
 	if (!existing) {
 		throw new AppError(StatusCodes.NOT_FOUND, "Media not found.");
 	}
-	return prisma.media.update({ where: { id }, data: payload });
+	return prisma.media.update({ where: { id }, data: payload as Prisma.MediaUncheckedUpdateInput });
 };
 
 export const deleteMediaFromDB = async (id: string) => {

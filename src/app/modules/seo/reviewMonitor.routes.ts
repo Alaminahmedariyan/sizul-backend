@@ -44,7 +44,9 @@ const assertExists = async (id: string) => {
 const createRecord = async (payload: z.infer<typeof createValidation>) => {
 	await assertProjectExists(payload.projectId);
 	const { rating, ...rest } = payload;
-	return prisma.reviewMonitor.create({ data: { ...rest, ...(rating !== undefined && { rating: new Prisma.Decimal(rating) }) } });
+	return prisma.reviewMonitor.create({
+		data: { ...rest, ...(rating !== undefined && { rating: new Prisma.Decimal(rating) }) } as Prisma.ReviewMonitorUncheckedCreateInput,
+	});
 };
 
 const deleteRecord = async (id: string) => {

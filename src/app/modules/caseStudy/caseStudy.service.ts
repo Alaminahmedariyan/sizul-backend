@@ -33,7 +33,9 @@ const caseStudyDelegate = prisma.caseStudy as unknown as PrismaDelegate<CaseStud
 
 const toPrismaData = <T extends { metrics?: unknown }>(payload: T) => ({
 	...payload,
-	...(payload.metrics !== undefined && { metrics: payload.metrics as Prisma.InputJsonValue | null }),
+	...(payload.metrics !== undefined && {
+		metrics: payload.metrics === null ? Prisma.JsonNull : (payload.metrics as Prisma.InputJsonValue),
+	}),
 });
 
 const assertCaseStudyExists = async (id: string) => {
@@ -45,7 +47,7 @@ const assertCaseStudyExists = async (id: string) => {
 };
 
 export const createCaseStudyInDB = async (payload: CreateCaseStudyInput) => {
-	return prisma.caseStudy.create({ data: toPrismaData(payload) });
+	return prisma.caseStudy.create({ data: toPrismaData(payload) as Prisma.CaseStudyUncheckedCreateInput });
 };
 
 export const getAllCaseStudiesFromDB = async (query: Record<string, unknown>, { publicOnly }: { publicOnly: boolean }) => {
@@ -86,7 +88,7 @@ export const getCaseStudyByIdFromDB = async (id: string) => {
 
 export const updateCaseStudyInDB = async (id: string, payload: UpdateCaseStudyInput) => {
 	await assertCaseStudyExists(id);
-	return prisma.caseStudy.update({ where: { id }, data: toPrismaData(payload) });
+	return prisma.caseStudy.update({ where: { id }, data: toPrismaData(payload) as Prisma.CaseStudyUncheckedUpdateInput });
 };
 
 export const updateCaseStudyStatusInDB = async (id: string, status: ContentStatus) => {

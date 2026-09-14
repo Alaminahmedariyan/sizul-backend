@@ -43,12 +43,14 @@ const assertServiceExists = async (serviceId: string) => {
 const toPrismaData = <T extends { price?: number; features?: unknown }>(payload: T) => ({
 	...payload,
 	...(payload.price !== undefined && { price: new Prisma.Decimal(payload.price) }),
-	...(payload.features !== undefined && { features: payload.features as Prisma.InputJsonValue | null }),
+	...(payload.features !== undefined && {
+		features: payload.features === null ? Prisma.JsonNull : (payload.features as Prisma.InputJsonValue),
+	}),
 });
 
 export const createPricingPlanInDB = async (payload: CreatePricingPlanInput) => {
 	await assertServiceExists(payload.serviceId);
-	return prisma.pricingPlan.create({ data: toPrismaData(payload) });
+	return prisma.pricingPlan.create({ data: toPrismaData(payload) as Prisma.PricingPlanUncheckedCreateInput });
 };
 
 export const getAllPricingPlansFromDB = async (query: Record<string, unknown>, { publicOnly }: { publicOnly: boolean }) => {
@@ -84,7 +86,7 @@ export const updatePricingPlanInDB = async (id: string, payload: UpdatePricingPl
 		await assertServiceExists(payload.serviceId);
 	}
 
-	return prisma.pricingPlan.update({ where: { id }, data: toPrismaData(payload) });
+	return prisma.pricingPlan.update({ where: { id }, data: toPrismaData(payload) as Prisma.PricingPlanUncheckedUpdateInput });
 };
 
 export const deletePricingPlanFromDB = async (id: string) => {

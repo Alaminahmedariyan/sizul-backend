@@ -4,6 +4,7 @@ import AppError from "../../errors/appError";
 import { QueryBuilder } from "../../queryBuilder";
 import type { PrismaDelegate } from "../../queryBuilder";
 import { prisma } from "../../../lib/prisma";
+import { Prisma } from "../../../generated/prisma/client";
 import type { ProjectMilestone } from "../../../generated/prisma/client";
 import { projectMilestoneQueryConfig } from "./projectMilestone.constant";
 
@@ -45,7 +46,7 @@ const assertMilestoneExists = async (id: string) => {
 
 export const createMilestoneInDB = async (payload: CreateMilestoneInput) => {
 	await assertProjectExists(payload.projectId);
-	return prisma.projectMilestone.create({ data: payload });
+	return prisma.projectMilestone.create({ data: payload as Prisma.ProjectMilestoneUncheckedCreateInput });
 };
 
 export const getAllMilestonesFromDB = async (query: Record<string, unknown>) => {
@@ -74,7 +75,7 @@ export const getMilestoneByIdFromDB = async (id: string) => {
 
 export const updateMilestoneInDB = async (id: string, payload: UpdateMilestoneInput) => {
 	await assertMilestoneExists(id);
-	return prisma.projectMilestone.update({ where: { id }, data: payload });
+	return prisma.projectMilestone.update({ where: { id }, data: payload as Prisma.ProjectMilestoneUncheckedUpdateInput });
 };
 
 export const updateMilestoneStatusInDB = async (id: string, status: MilestoneStatus) => {

@@ -4,6 +4,7 @@ import AppError from "../../errors/appError";
 import { QueryBuilder } from "../../queryBuilder";
 import type { PrismaDelegate } from "../../queryBuilder";
 import { prisma } from "../../../lib/prisma";
+import { Prisma } from "../../../generated/prisma/client";
 import type { BlogCategory } from "../../../generated/prisma/client";
 import { blogCategoryQueryConfig } from "./blogCategory.constant";
 
@@ -20,7 +21,7 @@ const assertExists = async (id: string) => {
 	return category;
 };
 
-export const createBlogCategoryInDB = async (payload: CreateInput) => prisma.blogCategory.create({ data: payload });
+export const createBlogCategoryInDB = async (payload: CreateInput) => prisma.blogCategory.create({ data: payload as Prisma.BlogCategoryUncheckedCreateInput });
 
 export const getAllBlogCategoriesFromDB = async (query: Record<string, unknown>, { publicOnly }: { publicOnly: boolean }) => {
 	const effectiveQuery: Record<string, unknown> = { ...query };
@@ -36,7 +37,7 @@ export const getBlogCategoryByIdFromDB = async (id: string) => assertExists(id);
 
 export const updateBlogCategoryInDB = async (id: string, payload: UpdateInput) => {
 	await assertExists(id);
-	return prisma.blogCategory.update({ where: { id }, data: payload });
+	return prisma.blogCategory.update({ where: { id }, data: payload as Prisma.BlogCategoryUncheckedUpdateInput });
 };
 
 export const deleteBlogCategoryFromDB = async (id: string) => {

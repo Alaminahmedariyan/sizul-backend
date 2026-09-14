@@ -43,12 +43,16 @@ const toPrismaData = <T extends { startingPrice?: number | null; features?: unkn
 	...(payload.startingPrice !== undefined && {
 		startingPrice: payload.startingPrice === null ? null : new Prisma.Decimal(payload.startingPrice),
 	}),
-	...(payload.features !== undefined && { features: payload.features as Prisma.InputJsonValue | null }),
-	...(payload.process !== undefined && { process: payload.process as Prisma.InputJsonValue | null }),
+	...(payload.features !== undefined && {
+		features: payload.features === null ? Prisma.JsonNull : (payload.features as Prisma.InputJsonValue),
+	}),
+	...(payload.process !== undefined && {
+		process: payload.process === null ? Prisma.JsonNull : (payload.process as Prisma.InputJsonValue),
+	}),
 });
 
 export const createServiceInDB = async (payload: CreateServiceInput) => {
-	return prisma.service.create({ data: toPrismaData(payload) });
+	return prisma.service.create({ data: toPrismaData(payload) as Prisma.ServiceUncheckedCreateInput });
 };
 
 export const getAllServicesFromDB = async (query: Record<string, unknown>, { publicOnly }: { publicOnly: boolean }) => {
@@ -72,7 +76,12 @@ export const getAllServicesFromDB = async (query: Record<string, unknown>, { pub
 export const getServiceBySlugFromDB = async (slug: string, { publicOnly }: { publicOnly: boolean }) => {
 	const service = await prisma.service.findUnique({
 		where: { slug },
-		include: { pricingPlans: { where: publicOnly ? { isActive: true } : undefined, orderBy: { order: "asc" } } },
+		include: {
+			pricingPlans: {
+				...(publicOnly && { where: { isActive: true } }),
+				orderBy: { order: "asc" },
+			},
+		},
 	});
 
 	if (!service || (publicOnly && !service.isActive)) {
@@ -101,7 +110,7 @@ export const updateServiceInDB = async (id: string, payload: UpdateServiceInput)
 		throw new AppError(StatusCodes.NOT_FOUND, "Service not found.");
 	}
 
-	return prisma.service.update({ where: { id }, data: toPrismaData(payload) });
+	return prisma.service.update({ where: { id }, data: toPrismaData(payload) as Prisma.ServiceUncheckedUpdateInput });
 };
 
 export const deleteServiceFromDB = async (id: string) => {

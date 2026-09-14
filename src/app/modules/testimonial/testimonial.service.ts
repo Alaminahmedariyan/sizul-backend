@@ -4,6 +4,7 @@ import AppError from "../../errors/appError";
 import { QueryBuilder } from "../../queryBuilder";
 import type { PrismaDelegate } from "../../queryBuilder";
 import { prisma } from "../../../lib/prisma";
+import { Prisma } from "../../../generated/prisma/client";
 import type { Testimonial } from "../../../generated/prisma/client";
 import { testimonialQueryConfig } from "./testimonial.constant";
 
@@ -33,7 +34,7 @@ const assertTestimonialExists = async (id: string) => {
 };
 
 export const createTestimonialInDB = async (payload: CreateTestimonialInput) => {
-	return prisma.testimonial.create({ data: payload });
+	return prisma.testimonial.create({ data: payload as Prisma.TestimonialUncheckedCreateInput });
 };
 
 export const getAllTestimonialsFromDB = async (query: Record<string, unknown>, { publicOnly }: { publicOnly: boolean }) => {
@@ -52,7 +53,7 @@ export const getTestimonialByIdFromDB = async (id: string) => {
 
 export const updateTestimonialInDB = async (id: string, payload: UpdateTestimonialInput) => {
 	await assertTestimonialExists(id);
-	return prisma.testimonial.update({ where: { id }, data: payload });
+	return prisma.testimonial.update({ where: { id }, data: payload as Prisma.TestimonialUncheckedUpdateInput });
 };
 
 export const updateTestimonialStatusInDB = async (id: string, status: ContentStatus) => {

@@ -66,7 +66,7 @@ export const createAppreciationInDB = async (payload: CreateAppreciationInput) =
 		await assertProjectExists(payload.projectId);
 	}
 
-	return prisma.clientAppreciation.create({ data: toPrismaData(payload) });
+	return prisma.clientAppreciation.create({ data: toPrismaData(payload) as Prisma.ClientAppreciationUncheckedCreateInput });
 };
 
 export const getAllAppreciationsFromDB = async (query: Record<string, unknown>) => {
@@ -94,7 +94,7 @@ export const updateAppreciationInDB = async (id: string, payload: UpdateApprecia
 		await assertProjectExists(payload.projectId);
 	}
 
-	return prisma.clientAppreciation.update({ where: { id }, data: toPrismaData(payload) });
+	return prisma.clientAppreciation.update({ where: { id }, data: toPrismaData(payload) as Prisma.ClientAppreciationUncheckedUpdateInput });
 };
 
 export const deleteAppreciationFromDB = async (id: string) => {

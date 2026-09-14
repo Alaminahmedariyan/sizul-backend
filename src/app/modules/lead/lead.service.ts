@@ -91,7 +91,7 @@ export const createLeadInDB = async (payload: CreateLeadInput) => {
 		}
 	}
 
-	const lead = await prisma.lead.create({ data: payload });
+	const lead = await prisma.lead.create({ data: payload as Prisma.LeadUncheckedCreateInput });
 	await logLeadActivity(lead.id, "CREATED", `Lead captured from ${payload.source}.`);
 
 	try {
@@ -145,7 +145,7 @@ export const updateLeadInDB = async (id: string, payload: UpdateLeadInput, actor
 		}
 	}
 
-	const updated = await prisma.lead.update({ where: { id }, data: payload });
+	const updated = await prisma.lead.update({ where: { id }, data: payload as Prisma.LeadUncheckedUpdateInput });
 	await logLeadActivity(id, "UPDATED", "Lead details updated.", actorId);
 	return updated;
 };

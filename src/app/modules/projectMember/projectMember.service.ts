@@ -4,6 +4,7 @@ import AppError from "../../errors/appError";
 import { QueryBuilder } from "../../queryBuilder";
 import type { PrismaDelegate } from "../../queryBuilder";
 import { prisma } from "../../../lib/prisma";
+import { Prisma } from "../../../generated/prisma/client";
 import type { ProjectMember } from "../../../generated/prisma/client";
 import { projectMemberQueryConfig } from "./projectMember.constant";
 
@@ -29,7 +30,7 @@ export const addProjectMemberInDB = async (payload: { projectId: string; staffId
 		throw new AppError(StatusCodes.CONFLICT, "This staff member is already on the project.");
 	}
 
-	return prisma.projectMember.create({ data: payload });
+	return prisma.projectMember.create({ data: payload as Prisma.ProjectMemberUncheckedCreateInput });
 };
 
 export const getAllProjectMembersFromDB = async (query: Record<string, unknown>) => {

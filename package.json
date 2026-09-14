@@ -20,7 +20,7 @@
     "format": "biome format --write .",
     "audit": "pnpm audit --audit-level=high",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "notify:due-tasks": "tsx src/jobs/notifyDueTasks.ts",
+    "notify:due-tasks": "tsx src/jobs/notifyDueTasks.ts"
   },
   "keywords": [],
   "author": "",
