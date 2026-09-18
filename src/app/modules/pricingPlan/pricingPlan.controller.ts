@@ -3,9 +3,9 @@ import type { Request, Response } from "express";
 
 import { catchAsync } from "../../utils/catchAsync";
 import { sendResponse } from "../../utils/sendResponse";
-import * as pricingPlanService from "./pricingPlan.service";
+import { pricingPlanService } from "./pricingPlan.service";
 
-export const createPricingPlan = catchAsync(async (req: Request, res: Response) => {
+ const createPricingPlan = catchAsync(async (req: Request, res: Response) => {
 	const plan = await pricingPlanService.createPricingPlanInDB(req.body);
 
 	sendResponse(res, {
@@ -16,7 +16,7 @@ export const createPricingPlan = catchAsync(async (req: Request, res: Response) 
 	});
 });
 
-export const getAllPricingPlansPublic = catchAsync(async (req: Request, res: Response) => {
+ const getAllPricingPlansPublic = catchAsync(async (req: Request, res: Response) => {
 	const { data, meta } = await pricingPlanService.getAllPricingPlansFromDB(req.query as Record<string, unknown>, {
 		publicOnly: true,
 	});
@@ -30,7 +30,7 @@ export const getAllPricingPlansPublic = catchAsync(async (req: Request, res: Res
 	});
 });
 
-export const getAllPricingPlansAdmin = catchAsync(async (req: Request, res: Response) => {
+ const getAllPricingPlansAdmin = catchAsync(async (req: Request, res: Response) => {
 	const { data, meta } = await pricingPlanService.getAllPricingPlansFromDB(req.query as Record<string, unknown>, {
 		publicOnly: false,
 	});
@@ -44,7 +44,7 @@ export const getAllPricingPlansAdmin = catchAsync(async (req: Request, res: Resp
 	});
 });
 
-export const getPricingPlanById = catchAsync(async (req: Request, res: Response) => {
+ const getPricingPlanById = catchAsync(async (req: Request, res: Response) => {
 	const plan = await pricingPlanService.getPricingPlanByIdFromDB(req.params.id as string);
 
 	sendResponse(res, {
@@ -55,7 +55,7 @@ export const getPricingPlanById = catchAsync(async (req: Request, res: Response)
 	});
 });
 
-export const updatePricingPlan = catchAsync(async (req: Request, res: Response) => {
+ const updatePricingPlan = catchAsync(async (req: Request, res: Response) => {
 	const plan = await pricingPlanService.updatePricingPlanInDB(req.params.id as string, req.body);
 
 	sendResponse(res, {
@@ -66,7 +66,7 @@ export const updatePricingPlan = catchAsync(async (req: Request, res: Response) 
 	});
 });
 
-export const deletePricingPlan = catchAsync(async (req: Request, res: Response) => {
+ const deletePricingPlan = catchAsync(async (req: Request, res: Response) => {
 	await pricingPlanService.deletePricingPlanFromDB(req.params.id as string);
 
 	sendResponse(res, {
@@ -76,3 +76,13 @@ export const deletePricingPlan = catchAsync(async (req: Request, res: Response) 
 		data: null,
 	});
 });
+
+
+export const pricingPlanController = {
+	createPricingPlan,
+	getAllPricingPlansPublic,
+	getAllPricingPlansAdmin,
+	getPricingPlanById,
+	updatePricingPlan,
+	deletePricingPlan,
+};

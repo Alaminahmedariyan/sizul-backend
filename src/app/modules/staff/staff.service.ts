@@ -48,7 +48,7 @@ const assertUserExistsAndUnlinked = async (userId: string, excludeStaffId?: stri
 	}
 };
 
-export const createStaffInDB = async (payload: CreateStaffInput) => {
+ const createStaffInDB = async (payload: CreateStaffInput) => {
 	if (payload.userId) {
 		await assertUserExistsAndUnlinked(payload.userId);
 	}
@@ -56,12 +56,12 @@ export const createStaffInDB = async (payload: CreateStaffInput) => {
 	return prisma.staff.create({ data: payload });
 };
 
-export const getAllStaffFromDB = async (query: Record<string, unknown>) => {
+ const getAllStaffFromDB = async (query: Record<string, unknown>) => {
 	const queryBuilder = new QueryBuilder<Staff>(staffDelegate, staffQueryConfig);
 	return queryBuilder.execute(query);
 };
 
-export const getStaffByIdFromDB = async (id: string) => {
+ const getStaffByIdFromDB = async (id: string) => {
 	const staff = await prisma.staff.findUnique({
 		where: { id },
 		include: { user: { select: { id: true, email: true, name: true, image: true } } },
@@ -74,7 +74,7 @@ export const getStaffByIdFromDB = async (id: string) => {
 	return staff;
 };
 
-export const updateStaffInDB = async (id: string, payload: UpdateStaffInput) => {
+ const updateStaffInDB = async (id: string, payload: UpdateStaffInput) => {
 	const existing = await prisma.staff.findUnique({ where: { id } });
 	if (!existing) {
 		throw new AppError(StatusCodes.NOT_FOUND, "Staff member not found.");
@@ -87,7 +87,7 @@ export const updateStaffInDB = async (id: string, payload: UpdateStaffInput) => 
 	return prisma.staff.update({ where: { id }, data: payload });
 };
 
-export const updateStaffStatusInDB = async (id: string, status: StaffStatusInput) => {
+ const updateStaffStatusInDB = async (id: string, status: StaffStatusInput) => {
 	const existing = await prisma.staff.findUnique({ where: { id } });
 	if (!existing) {
 		throw new AppError(StatusCodes.NOT_FOUND, "Staff member not found.");
@@ -96,11 +96,20 @@ export const updateStaffStatusInDB = async (id: string, status: StaffStatusInput
 	return prisma.staff.update({ where: { id }, data: { status } });
 };
 
-export const deleteStaffFromDB = async (id: string) => {
+ const deleteStaffFromDB = async (id: string) => {
 	const existing = await prisma.staff.findUnique({ where: { id } });
 	if (!existing) {
 		throw new AppError(StatusCodes.NOT_FOUND, "Staff member not found.");
 	}
 
 	await prisma.staff.delete({ where: { id } });
+};
+
+export const staffService = {
+	createStaffInDB,
+	getAllStaffFromDB,
+	getStaffByIdFromDB,
+	updateStaffInDB,
+	updateStaffStatusInDB,
+	deleteStaffFromDB,
 };

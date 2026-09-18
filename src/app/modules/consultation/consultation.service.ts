@@ -8,23 +8,8 @@ import { Prisma } from "../../../generated/prisma/client";
 import type { Consultation } from "../../../generated/prisma/client";
 import { consultationQueryConfig } from "./consultation.constant";
 import { createNotification } from "../notification/notification.service";
+import type { ConsultationStatus, CreateConsultationInput, UpdateConsultationInput } from "./consultation.interface";
 
-type ConsultationStatus = "PENDING" | "CONFIRMED" | "COMPLETED" | "CANCELLED" | "NO_SHOW";
-
-type CreateConsultationInput = {
-	leadId: string;
-	serviceId?: string;
-	preferredDate?: Date;
-	preferredTime?: string;
-	notes?: string;
-};
-
-type UpdateConsultationInput = {
-	serviceId?: string | null;
-	preferredDate?: Date | null;
-	preferredTime?: string | null;
-	notes?: string | null;
-};
 
 const consultationDelegate = prisma.consultation as unknown as PrismaDelegate<Consultation>;
 
@@ -136,4 +121,14 @@ export const assignConsultationToStaffInDB = async (id: string, staffId: string 
 export const deleteConsultationFromDB = async (id: string) => {
 	await assertConsultationExists(id);
 	await prisma.consultation.delete({ where: { id } });
+};
+
+export const consultationService = {
+	createConsultationInDB,
+	getAllConsultationsFromDB,
+	getConsultationByIdFromDB,
+	updateConsultationInDB,
+	updateConsultationStatusInDB,
+	assignConsultationToStaffInDB,
+	deleteConsultationFromDB,
 };

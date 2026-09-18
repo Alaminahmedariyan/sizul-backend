@@ -5,11 +5,10 @@ import { QueryBuilder } from "../../queryBuilder";
 import type { PrismaDelegate } from "../../queryBuilder";
 import { prisma } from "../../../lib/prisma";
 import type { ProjectFile } from "../../../generated/prisma/client";
-// ADJUST THIS PATH if your Cloudinary upload util lives somewhere else:
-import { deleteFileFromCloudinary, uploadFileToCloudinary } from "../../utils/fileUploader";
 import { projectFileQueryConfig } from "./projectFile.constant";
+import type { FileCategory } from "./projectFile.interface";
+import { deleteFileFromCloudinary, uploadFileToCloudinary } from "../../utils/fileUploader";
 
-type FileCategory = "IMAGE" | "VIDEO" | "DOCUMENT" | "AUDIO" | "OTHER";
 
 const fileDelegate = prisma.projectFile as unknown as PrismaDelegate<ProjectFile>;
 
@@ -88,4 +87,11 @@ export const deleteProjectFileFromDB = async (id: string) => {
 	}
 
 	await prisma.projectFile.delete({ where: { id } });
+};
+
+export const projectFileService = {
+	uploadProjectFileInDB,
+	getAllProjectFilesFromDB,
+	getProjectFileByIdFromDB,
+	deleteProjectFileFromDB,
 };

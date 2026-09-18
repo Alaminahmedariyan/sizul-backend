@@ -5,8 +5,8 @@ import { validateRequest } from "../../middlewares/validateRequest";
 // ADJUST THIS PATH if your multer middleware file lives somewhere else (same
 // note as projectFile.routes.ts):
 import { documentUpload } from "../../middlewares/upload";
-import * as mediaController from "./media.controller";
 import { updateMediaValidation, uploadMediaValidation } from "./media.validation";
+import { mediaController } from "./media.controller";
 
 const router = Router();
 

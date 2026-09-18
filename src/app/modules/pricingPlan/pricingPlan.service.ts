@@ -7,29 +7,8 @@ import { prisma } from "../../../lib/prisma";
 import { Prisma } from "../../../generated/prisma/client";
 import type { PricingPlan } from "../../../generated/prisma/client";
 import { pricingPlanQueryConfig } from "./pricingPlan.constant";
+import type { BillingInterval, CreatePricingPlanInput, UpdatePricingPlanInput } from "./pricingPlan.interface";
 
-type BillingInterval = "ONE_TIME" | "MONTHLY" | "QUARTERLY" | "YEARLY" | "CUSTOM";
-
-type CreatePricingPlanInput = {
-	serviceId: string;
-	slug: string;
-	name: string;
-	description?: string;
-	price: number;
-	currency: string;
-	billingInterval: BillingInterval;
-	features?: unknown;
-	isPopular: boolean;
-	isActive: boolean;
-	order: number;
-};
-
-type UpdatePricingPlanInput = Partial<Omit<CreatePricingPlanInput, "currency" | "isPopular" | "isActive" | "order">> & {
-	currency?: string;
-	isPopular?: boolean;
-	isActive?: boolean;
-	order?: number;
-};
 
 const pricingPlanDelegate = prisma.pricingPlan as unknown as PrismaDelegate<PricingPlan>;
 
@@ -96,4 +75,12 @@ export const deletePricingPlanFromDB = async (id: string) => {
 	}
 
 	await prisma.pricingPlan.delete({ where: { id } });
+};
+
+export const pricingPlanService = {
+	createPricingPlanInDB,
+	getAllPricingPlansFromDB,
+	getPricingPlanByIdFromDB,
+	updatePricingPlanInDB,
+	deletePricingPlanFromDB,
 };

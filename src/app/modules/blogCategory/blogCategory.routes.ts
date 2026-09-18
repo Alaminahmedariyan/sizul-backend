@@ -2,28 +2,29 @@ import { Router } from "express";
 
 import { requireAuth, requireRole } from "../../middlewares/requireAuth";
 import { validateRequest } from "../../middlewares/validateRequest";
-import * as categoryController from "./blogCategory.controller";
+
 import { createBlogCategoryValidation, updateBlogCategoryValidation } from "./blogCategory.validation";
+import { blogCategoryController } from "./blogCategory.controller";
 
 const router = Router();
 
-router.get("/", categoryController.getAllBlogCategoriesPublic);
-router.get("/manage", requireAuth, requireRole("ADMIN", "STAFF"), categoryController.getAllBlogCategoriesAdmin);
-router.get("/manage/:id", requireAuth, requireRole("ADMIN", "STAFF"), categoryController.getBlogCategoryById);
+router.get("/", blogCategoryController.getAllBlogCategoriesPublic);
+router.get("/manage", requireAuth, requireRole("ADMIN", "STAFF"), blogCategoryController.getAllBlogCategoriesAdmin);
+router.get("/manage/:id", requireAuth, requireRole("ADMIN", "STAFF"), blogCategoryController.getBlogCategoryById);
 router.post(
 	"/",
 	requireAuth,
 	requireRole("ADMIN", "STAFF"),
 	validateRequest(createBlogCategoryValidation),
-	categoryController.createBlogCategory,
+	blogCategoryController.createBlogCategory,
 );
 router.patch(
 	"/:id",
 	requireAuth,
 	requireRole("ADMIN", "STAFF"),
 	validateRequest(updateBlogCategoryValidation),
-	categoryController.updateBlogCategory,
+	blogCategoryController.updateBlogCategory,
 );
-router.delete("/:id", requireAuth, requireRole("ADMIN"), categoryController.deleteBlogCategory);
+router.delete("/:id", requireAuth, requireRole("ADMIN"), blogCategoryController.deleteBlogCategory);
 
 export const blogCategoryRoutes = router;

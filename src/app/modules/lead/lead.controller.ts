@@ -3,9 +3,10 @@ import type { Request, Response } from "express";
 
 import { catchAsync } from "../../utils/catchAsync";
 import { sendResponse } from "../../utils/sendResponse";
-import * as leadService from "./lead.service";
+import { leadService } from "./lead.service";
 
-export const createLead = catchAsync(async (req: Request, res: Response) => {
+
+ const createLead = catchAsync(async (req: Request, res: Response) => {
 	const lead = await leadService.createLeadInDB(req.body);
 
 	sendResponse(res, {
@@ -16,7 +17,7 @@ export const createLead = catchAsync(async (req: Request, res: Response) => {
 	});
 });
 
-export const getAllLeads = catchAsync(async (req: Request, res: Response) => {
+ const getAllLeads = catchAsync(async (req: Request, res: Response) => {
 	const { data, meta } = await leadService.getAllLeadsFromDB(req.query as Record<string, unknown>);
 
 	sendResponse(res, {
@@ -28,7 +29,7 @@ export const getAllLeads = catchAsync(async (req: Request, res: Response) => {
 	});
 });
 
-export const getLeadById = catchAsync(async (req: Request, res: Response) => {
+ const getLeadById = catchAsync(async (req: Request, res: Response) => {
 	const lead = await leadService.getLeadByIdFromDB(req.params.id as string);
 
 	sendResponse(res, {
@@ -39,7 +40,7 @@ export const getLeadById = catchAsync(async (req: Request, res: Response) => {
 	});
 });
 
-export const updateLead = catchAsync(async (req: Request, res: Response) => {
+ const updateLead = catchAsync(async (req: Request, res: Response) => {
 	const lead = await leadService.updateLeadInDB(req.params.id as string, req.body, req.user?.id);
 
 	sendResponse(res, {
@@ -50,7 +51,7 @@ export const updateLead = catchAsync(async (req: Request, res: Response) => {
 	});
 });
 
-export const updateLeadStatus = catchAsync(async (req: Request, res: Response) => {
+ const updateLeadStatus = catchAsync(async (req: Request, res: Response) => {
 	const lead = await leadService.updateLeadStatusInDB(req.params.id as string, req.body.status, req.user?.id);
 
 	sendResponse(res, {
@@ -61,7 +62,7 @@ export const updateLeadStatus = catchAsync(async (req: Request, res: Response) =
 	});
 });
 
-export const assignLead = catchAsync(async (req: Request, res: Response) => {
+ const assignLead = catchAsync(async (req: Request, res: Response) => {
 	const lead = await leadService.assignLeadToStaffInDB(req.params.id as string, req.body.staffId, req.user?.id);
 
 	sendResponse(res, {
@@ -72,7 +73,7 @@ export const assignLead = catchAsync(async (req: Request, res: Response) => {
 	});
 });
 
-export const convertLeadToClient = catchAsync(async (req: Request, res: Response) => {
+ const convertLeadToClient = catchAsync(async (req: Request, res: Response) => {
 	const result = await leadService.convertLeadToClientInDB(req.params.id as string, req.user?.id);
 
 	sendResponse(res, {
@@ -83,7 +84,7 @@ export const convertLeadToClient = catchAsync(async (req: Request, res: Response
 	});
 });
 
-export const addLeadNote = catchAsync(async (req: Request, res: Response) => {
+ const addLeadNote = catchAsync(async (req: Request, res: Response) => {
 	const note = await leadService.addLeadNoteInDB(req.params.id as string, req.body.content, req.user?.id);
 
 	sendResponse(res, {
@@ -94,7 +95,7 @@ export const addLeadNote = catchAsync(async (req: Request, res: Response) => {
 	});
 });
 
-export const getLeadNotes = catchAsync(async (req: Request, res: Response) => {
+ const getLeadNotes = catchAsync(async (req: Request, res: Response) => {
 	const notes = await leadService.getLeadNotesFromDB(req.params.id as string);
 
 	sendResponse(res, {
@@ -105,7 +106,7 @@ export const getLeadNotes = catchAsync(async (req: Request, res: Response) => {
 	});
 });
 
-export const getLeadActivities = catchAsync(async (req: Request, res: Response) => {
+ const getLeadActivities = catchAsync(async (req: Request, res: Response) => {
 	const activities = await leadService.getLeadActivitiesFromDB(req.params.id as string);
 
 	sendResponse(res, {
@@ -116,7 +117,7 @@ export const getLeadActivities = catchAsync(async (req: Request, res: Response) 
 	});
 });
 
-export const deleteLead = catchAsync(async (req: Request, res: Response) => {
+ const deleteLead = catchAsync(async (req: Request, res: Response) => {
 	await leadService.deleteLeadFromDB(req.params.id as string);
 
 	sendResponse(res, {
@@ -126,3 +127,17 @@ export const deleteLead = catchAsync(async (req: Request, res: Response) => {
 		data: null,
 	});
 });
+
+export const leadController = {
+	createLead,
+	getAllLeads,
+	getLeadById,
+	updateLead,
+	updateLeadStatus,
+	assignLead,
+	convertLeadToClient,
+	addLeadNote,
+	getLeadNotes,
+	getLeadActivities,
+	deleteLead,
+};

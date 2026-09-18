@@ -2,8 +2,9 @@ import { Router } from "express";
 
 import { requireAuth, requireRole } from "../../middlewares/requireAuth";
 import { validateRequest } from "../../middlewares/validateRequest";
-import * as projectMemberController from "./projectMember.controller";
+
 import { addProjectMemberValidation, updateProjectMemberRoleValidation } from "./projectMember.validation";
+import { projectMemberController } from "./projectMember.controller";
 
 const router = Router();
 

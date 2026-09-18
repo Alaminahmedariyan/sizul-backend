@@ -107,7 +107,7 @@ const assertIsDraft = (proposal: Proposal) => {
 	}
 };
 
-export const createProposalInDB = async (payload: CreateProposalInput, createdById: string) => {
+ const createProposalInDB = async (payload: CreateProposalInput, createdById: string) => {
 	await assertReferencesExist(payload);
 
 	const { data: itemsData, subtotal } = buildItemsData(payload.items);
@@ -140,12 +140,12 @@ export const createProposalInDB = async (payload: CreateProposalInput, createdBy
 	});
 };
 
-export const getAllProposalsFromDB = async (query: Record<string, unknown>) => {
+ const getAllProposalsFromDB = async (query: Record<string, unknown>) => {
 	const queryBuilder = new QueryBuilder<Proposal>(proposalDelegate, proposalQueryConfig);
 	return queryBuilder.execute(query);
 };
 
-export const getProposalByIdFromDB = async (id: string) => {
+ const getProposalByIdFromDB = async (id: string) => {
 	const proposal = await prisma.proposal.findUnique({
 		where: { id },
 		include: {
@@ -165,7 +165,7 @@ export const getProposalByIdFromDB = async (id: string) => {
 	return proposal;
 };
 
-export const updateProposalInDB = async (id: string, payload: UpdateProposalInput) => {
+ const updateProposalInDB = async (id: string, payload: UpdateProposalInput) => {
 	const existing = await assertProposalExists(id);
 	assertIsDraft(existing);
 	await assertReferencesExist(payload);
@@ -205,7 +205,7 @@ export const updateProposalInDB = async (id: string, payload: UpdateProposalInpu
 	});
 };
 
-export const sendProposalInDB = async (id: string) => {
+ const sendProposalInDB = async (id: string) => {
 	const existing = await assertProposalExists(id);
 	if (existing.status !== "DRAFT") {
 		throw new AppError(StatusCodes.BAD_REQUEST, "Only a DRAFT proposal can be sent.");
@@ -234,7 +234,7 @@ export const sendProposalInDB = async (id: string) => {
 	return updated;
 };
 
-export const markProposalViewedInDB = async (id: string) => {
+ const markProposalViewedInDB = async (id: string) => {
 	const existing = await assertProposalExists(id);
 	if (existing.status !== "SENT") {
 		throw new AppError(StatusCodes.BAD_REQUEST, "Only a SENT proposal can be marked as viewed.");
@@ -243,7 +243,7 @@ export const markProposalViewedInDB = async (id: string) => {
 	return prisma.proposal.update({ where: { id }, data: { status: "VIEWED", viewedAt: new Date() } });
 };
 
-export const acceptProposalInDB = async (id: string) => {
+ const acceptProposalInDB = async (id: string) => {
 	const existing = await assertProposalExists(id);
 	if (existing.status !== "SENT" && existing.status !== "VIEWED") {
 		throw new AppError(StatusCodes.BAD_REQUEST, "Only a SENT or VIEWED proposal can be accepted.");
@@ -267,7 +267,7 @@ export const acceptProposalInDB = async (id: string) => {
 	return updated;
 };
 
-export const rejectProposalInDB = async (id: string) => {
+ const rejectProposalInDB = async (id: string) => {
 	const existing = await assertProposalExists(id);
 	if (existing.status !== "SENT" && existing.status !== "VIEWED") {
 		throw new AppError(StatusCodes.BAD_REQUEST, "Only a SENT or VIEWED proposal can be rejected.");
@@ -291,9 +291,21 @@ export const rejectProposalInDB = async (id: string) => {
 	return updated;
 };
 
-export const deleteProposalFromDB = async (id: string) => {
+ const deleteProposalFromDB = async (id: string) => {
 	const existing = await assertProposalExists(id);
 	assertIsDraft(existing);
 
 	await prisma.proposal.delete({ where: { id } });
+};
+
+export const proposalService = {
+	createProposalInDB,
+	getAllProposalsFromDB,
+	getProposalByIdFromDB,
+	updateProposalInDB,
+	sendProposalInDB,
+	markProposalViewedInDB,
+	acceptProposalInDB,
+	rejectProposalInDB,
+	deleteProposalFromDB,
 };

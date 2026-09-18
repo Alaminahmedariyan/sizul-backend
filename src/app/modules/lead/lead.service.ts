@@ -8,52 +8,8 @@ import { Prisma } from "../../../generated/prisma/client";
 import type { Lead } from "../../../generated/prisma/client";
 import { leadQueryConfig } from "./lead.constant";
 import { createNotification, notifyAdmins } from "../notification/notification.service";
+import type { LeadSource, LeadPriority, LeadStatus, LeadActivityType, CreateLeadInput, UpdateLeadInput } from "./lead.interface";
 
-type LeadSource = "WEBSITE" | "REFERRAL" | "SOCIAL_MEDIA" | "EMAIL_CAMPAIGN" | "PHONE" | "WALK_IN" | "OTHER";
-type LeadPriority = "LOW" | "MEDIUM" | "HIGH" | "URGENT";
-type LeadStatus = "NEW" | "CONTACTED" | "QUALIFIED" | "PROPOSAL_SENT" | "NEGOTIATING" | "CONVERTED" | "LOST";
-type LeadActivityType =
-	| "CREATED"
-	| "UPDATED"
-	| "ASSIGNED"
-	| "CONTACTED"
-	| "EMAIL_SENT"
-	| "CALL_MADE"
-	| "MEETING_SCHEDULED"
-	| "NOTE_ADDED"
-	| "STATUS_CHANGED"
-	| "PROPOSAL_SENT"
-	| "CONVERTED"
-	| "LOST";
-
-type CreateLeadInput = {
-	serviceId?: string;
-	name: string;
-	email: string;
-	phone?: string;
-	company?: string;
-	website?: string;
-	location?: string;
-	budget?: string;
-	timeline?: string;
-	message?: string;
-	source: LeadSource;
-};
-
-type UpdateLeadInput = {
-	serviceId?: string | null;
-	name?: string;
-	email?: string;
-	phone?: string | null;
-	company?: string | null;
-	website?: string | null;
-	location?: string | null;
-	budget?: string | null;
-	timeline?: string | null;
-	message?: string | null;
-	priority?: LeadPriority;
-	followUpAt?: Date | null;
-};
 
 const leadDelegate = prisma.lead as unknown as PrismaDelegate<Lead>;
 
@@ -243,16 +199,35 @@ export const convertLeadToClientInDB = async (id: string, actorId?: string) => {
 		throw new AppError(StatusCodes.CONFLICT, "This lead has already been converted to a client.");
 	}
 
-	const client = await prisma.client.create({
-		data: {
-			name: lead.name,
-			email: lead.email,
-			phone: lead.phone,
-			company: lead.company,
-			website: lead.website,
-			location: lead.location,
-		},
-	});
+	const email = lead.email.toLowerCase();
+
+	// A Client may already exist for this email — e.g. an earlier lead from the
+	// same person was already converted, or a User account already auto-created
+	// one (see the databaseHooks in lib/auth.ts). Reuse it instead of creating a
+	// duplicate; fill in any gaps from this lead's data without overwriting
+	// anything the existing record already has.
+	const existingClient = await prisma.client.findUnique({ where: { email } });
+
+	const client = existingClient
+		? await prisma.client.update({
+				where: { id: existingClient.id },
+				data: {
+					phone: existingClient.phone ?? lead.phone,
+					company: existingClient.company ?? lead.company,
+					website: existingClient.website ?? lead.website,
+					location: existingClient.location ?? lead.location,
+				},
+			})
+		: await prisma.client.create({
+				data: {
+					name: lead.name,
+					email,
+					phone: lead.phone,
+					company: lead.company,
+					website: lead.website,
+					location: lead.location,
+				},
+			});
 
 	const updatedLead = await prisma.lead.update({
 		where: { id },

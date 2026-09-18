@@ -6,9 +6,15 @@ export const projectQueryConfig: QueryConfig = {
 		name: "string",
 		slug: "string",
 		clientId: "string",
+		serviceId: "string",
 		projectType: {
 			type: "enum",
-			enum: { CLIENT_PROJECT: "CLIENT_PROJECT", INTERNAL_PROJECT: "INTERNAL_PROJECT", RESEARCH: "RESEARCH", MAINTENANCE: "MAINTENANCE" },
+			enum: {
+				CLIENT_PROJECT: "CLIENT_PROJECT",
+				INTERNAL_PROJECT: "INTERNAL_PROJECT",
+				RESEARCH: "RESEARCH",
+				MAINTENANCE: "MAINTENANCE",
+			},
 		},
 		status: {
 			type: "enum",
@@ -24,6 +30,6 @@ export const projectQueryConfig: QueryConfig = {
 		deadline: "date",
 	},
 	sortableFields: ["createdAt", "updatedAt", "deadline", "startDate", "name", "progress"],
-	includableRelations: ["client", "members", "milestones", "tasks", "files"],
+	includableRelations: ["client", "service", "members", "milestones", "tasks", "files"],
 	defaultSortField: "createdAt",
 };

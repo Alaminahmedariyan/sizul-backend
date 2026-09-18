@@ -3,10 +3,10 @@ import type { Request, Response } from "express";
 
 import { catchAsync } from "../../utils/catchAsync";
 import { sendResponse } from "../../utils/sendResponse";
-import * as appreciationService from "./clientAppreciation.service";
+import { clientAppreciationService } from "./clientAppreciation.service";
 
 export const createAppreciation = catchAsync(async (req: Request, res: Response) => {
-	const appreciation = await appreciationService.createAppreciationInDB(req.body);
+	const appreciation = await clientAppreciationService.createAppreciationInDB(req.body);
 
 	sendResponse(res, {
 		success: true,
@@ -17,7 +17,7 @@ export const createAppreciation = catchAsync(async (req: Request, res: Response)
 });
 
 export const getAllAppreciations = catchAsync(async (req: Request, res: Response) => {
-	const { data, meta } = await appreciationService.getAllAppreciationsFromDB(req.query as Record<string, unknown>);
+	const { data, meta } = await clientAppreciationService.getAllAppreciationsFromDB(req.query as Record<string, unknown>);
 
 	sendResponse(res, {
 		success: true,
@@ -29,7 +29,7 @@ export const getAllAppreciations = catchAsync(async (req: Request, res: Response
 });
 
 export const getAppreciationById = catchAsync(async (req: Request, res: Response) => {
-	const appreciation = await appreciationService.getAppreciationByIdFromDB(req.params.id as string);
+	const appreciation = await clientAppreciationService.getAppreciationByIdFromDB(req.params.id as string);
 
 	sendResponse(res, {
 		success: true,
@@ -40,7 +40,7 @@ export const getAppreciationById = catchAsync(async (req: Request, res: Response
 });
 
 export const updateAppreciation = catchAsync(async (req: Request, res: Response) => {
-	const appreciation = await appreciationService.updateAppreciationInDB(req.params.id as string, req.body);
+	const appreciation = await clientAppreciationService.updateAppreciationInDB(req.params.id as string, req.body);
 
 	sendResponse(res, {
 		success: true,
@@ -51,7 +51,7 @@ export const updateAppreciation = catchAsync(async (req: Request, res: Response)
 });
 
 export const deleteAppreciation = catchAsync(async (req: Request, res: Response) => {
-	await appreciationService.deleteAppreciationFromDB(req.params.id as string);
+	await clientAppreciationService.deleteAppreciationFromDB(req.params.id as string);
 
 	sendResponse(res, {
 		success: true,

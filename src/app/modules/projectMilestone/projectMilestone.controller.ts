@@ -3,10 +3,10 @@ import type { Request, Response } from "express";
 
 import { catchAsync } from "../../utils/catchAsync";
 import { sendResponse } from "../../utils/sendResponse";
-import * as milestoneService from "./projectMilestone.service";
+import { projectMilestoneService } from "./projectMilestone.service";
 
-export const createMilestone = catchAsync(async (req: Request, res: Response) => {
-	const milestone = await milestoneService.createMilestoneInDB(req.body);
+ const createMilestone = catchAsync(async (req: Request, res: Response) => {
+	const milestone = await projectMilestoneService.createMilestoneInDB(req.body);
 
 	sendResponse(res, {
 		success: true,
@@ -16,8 +16,8 @@ export const createMilestone = catchAsync(async (req: Request, res: Response) =>
 	});
 });
 
-export const getAllMilestones = catchAsync(async (req: Request, res: Response) => {
-	const { data, meta } = await milestoneService.getAllMilestonesFromDB(req.query as Record<string, unknown>);
+ const getAllMilestones = catchAsync(async (req: Request, res: Response) => {
+	const { data, meta } = await  projectMilestoneService.getAllMilestonesFromDB(req.query as Record<string, unknown>);
 
 	sendResponse(res, {
 		success: true,
@@ -28,8 +28,8 @@ export const getAllMilestones = catchAsync(async (req: Request, res: Response) =
 	});
 });
 
-export const getMilestoneById = catchAsync(async (req: Request, res: Response) => {
-	const milestone = await milestoneService.getMilestoneByIdFromDB(req.params.id as string);
+ const getMilestoneById = catchAsync(async (req: Request, res: Response) => {
+	const milestone = await  projectMilestoneService.getMilestoneByIdFromDB(req.params.id as string);
 
 	sendResponse(res, {
 		success: true,
@@ -39,8 +39,8 @@ export const getMilestoneById = catchAsync(async (req: Request, res: Response) =
 	});
 });
 
-export const updateMilestone = catchAsync(async (req: Request, res: Response) => {
-	const milestone = await milestoneService.updateMilestoneInDB(req.params.id as string, req.body);
+ const updateMilestone = catchAsync(async (req: Request, res: Response) => {
+	const milestone = await  projectMilestoneService.updateMilestoneInDB(req.params.id as string, req.body);
 
 	sendResponse(res, {
 		success: true,
@@ -50,8 +50,8 @@ export const updateMilestone = catchAsync(async (req: Request, res: Response) =>
 	});
 });
 
-export const updateMilestoneStatus = catchAsync(async (req: Request, res: Response) => {
-	const milestone = await milestoneService.updateMilestoneStatusInDB(req.params.id as string, req.body.status);
+ const updateMilestoneStatus = catchAsync(async (req: Request, res: Response) => {
+	const milestone = await  projectMilestoneService.updateMilestoneStatusInDB(req.params.id as string, req.body.status);
 
 	sendResponse(res, {
 		success: true,
@@ -61,8 +61,8 @@ export const updateMilestoneStatus = catchAsync(async (req: Request, res: Respon
 	});
 });
 
-export const deleteMilestone = catchAsync(async (req: Request, res: Response) => {
-	await milestoneService.deleteMilestoneFromDB(req.params.id as string);
+ const deleteMilestone = catchAsync(async (req: Request, res: Response) => {
+	await  projectMilestoneService.deleteMilestoneFromDB(req.params.id as string);
 
 	sendResponse(res, {
 		success: true,
@@ -71,3 +71,12 @@ export const deleteMilestone = catchAsync(async (req: Request, res: Response) =>
 		data: null,
 	});
 });
+
+export const projectMilestoneController = {
+	createMilestone,
+	getAllMilestones,
+	getMilestoneById,
+	updateMilestone,
+	updateMilestoneStatus,
+	deleteMilestone,
+};

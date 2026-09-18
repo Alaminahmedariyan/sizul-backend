@@ -7,7 +7,7 @@ import { getStripe } from "../../../lib/stripe";
 import { catchAsync } from "../../utils/catchAsync";
 import { markPaymentFailedByProviderIdInDB, markPaymentSucceededByProviderIdInDB } from "../payment/payment.service";
 
-export const handleStripeWebhook = catchAsync(async (req: Request, res: Response) => {
+ const handleStripeWebhook = catchAsync(async (req: Request, res: Response) => {
 	const signature = req.headers["stripe-signature"];
 
 	if (!config.stripe.webhookSecret || !signature) {
@@ -50,3 +50,7 @@ export const handleStripeWebhook = catchAsync(async (req: Request, res: Response
 
 	res.status(StatusCodes.OK).json({ received: true });
 });
+
+export const webhookController = {
+	handleStripeWebhook,
+};

@@ -2,39 +2,39 @@ import { Router } from "express";
 
 import { requireAuth, requireRole } from "../../middlewares/requireAuth";
 import { validateRequest } from "../../middlewares/validateRequest";
-import * as postController from "./blogPost.controller";
 import { createBlogPostValidation, updateBlogPostStatusValidation, updateBlogPostValidation } from "./blogPost.validation";
+import { blogPostController } from "./blogPost.controller";
 
 const router = Router();
 
-router.get("/", postController.getAllBlogPostsPublic);
+router.get("/", blogPostController.getAllBlogPostsPublic);
 
-router.get("/manage", requireAuth, requireRole("ADMIN", "STAFF"), postController.getAllBlogPostsAdmin);
-router.get("/manage/:id", requireAuth, requireRole("ADMIN", "STAFF"), postController.getBlogPostByIdAdmin);
+router.get("/manage", requireAuth, requireRole("ADMIN", "STAFF"), blogPostController.getAllBlogPostsAdmin);
+router.get("/manage/:id", requireAuth, requireRole("ADMIN", "STAFF"), blogPostController.getBlogPostByIdAdmin);
 
-router.get("/:slug", postController.getBlogPostBySlugPublic);
+router.get("/:slug", blogPostController.getBlogPostBySlugPublic);
 
 router.post(
 	"/",
 	requireAuth,
 	requireRole("ADMIN", "STAFF"),
 	validateRequest(createBlogPostValidation),
-	postController.createBlogPost,
+	blogPostController.createBlogPost,
 );
 router.patch(
 	"/:id",
 	requireAuth,
 	requireRole("ADMIN", "STAFF"),
 	validateRequest(updateBlogPostValidation),
-	postController.updateBlogPost,
+	blogPostController.updateBlogPost,
 );
 router.patch(
 	"/:id/status",
 	requireAuth,
 	requireRole("ADMIN", "STAFF"),
 	validateRequest(updateBlogPostStatusValidation),
-	postController.updateBlogPostStatus,
+	blogPostController.updateBlogPostStatus,
 );
-router.delete("/:id", requireAuth, requireRole("ADMIN"), postController.deleteBlogPost);
+router.delete("/:id", requireAuth, requireRole("ADMIN"), blogPostController.deleteBlogPost);
 
 export const blogPostRoutes = router;

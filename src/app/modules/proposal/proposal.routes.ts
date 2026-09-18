@@ -2,8 +2,9 @@ import { Router } from "express";
 
 import { requireAuth, requireRole } from "../../middlewares/requireAuth";
 import { validateRequest } from "../../middlewares/validateRequest";
-import * as proposalController from "./proposal.controller";
+
 import { createProposalValidation, updateProposalValidation } from "./proposal.validation";
+import { proposalController } from "./proposal.controller";
 
 const router = Router();
 

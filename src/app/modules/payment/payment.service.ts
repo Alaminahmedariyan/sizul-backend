@@ -16,10 +16,10 @@ import { Prisma } from "../../../generated/prisma/client";
 import type { Payment, Proposal } from "../../../generated/prisma/client";
 import { paymentQueryConfig } from "./payment.constant";
 import { createNotification } from "../notification/notification.service";
+import type { RequestingUser, BkashCreateResponse, BkashExecuteResponse, SslcommerzInitResponse, SslcommerzValidateResponse } from "./payment.interface";
+
 
 const paymentDelegate = prisma.payment as unknown as PrismaDelegate<Payment>;
-
-type RequestingUser = { id: string; role: "ADMIN" | "STAFF" | "CLIENT" };
 
 const primaryClientUrl = () => config.app.clientUrl.split(",")[0]?.trim() ?? "";
 
@@ -149,9 +149,6 @@ export const markPaymentFailedByProviderIdInDB = async (providerPaymentId: strin
 // bKash's Tokenized Checkout only settles in BDT — proposals in any other
 // currency are rejected here rather than silently charged at a 1:1 rate.
 
-type BkashCreateResponse = { paymentID?: string; bkashURL?: string; statusCode?: string; statusMessage?: string };
-type BkashExecuteResponse = { transactionStatus?: string; trxID?: string; statusMessage?: string };
-
 export const createBkashPaymentInDB = async (proposalId: string, requestedBy: RequestingUser) => {
 	const proposal = await assertCanPayForProposal(proposalId, requestedBy);
 
@@ -269,9 +266,6 @@ export const handleBkashCallbackInDB = async (paymentID: string, redirectStatus:
 // SSLCOMMERZ
 // ============================================================
 // Same BDT-only reasoning as bKash.
-
-type SslcommerzInitResponse = { status?: string; GatewayPageURL?: string; failedreason?: string };
-type SslcommerzValidateResponse = { status?: string };
 
 export const createSslcommerzPaymentInDB = async (proposalId: string, requestedBy: RequestingUser) => {
 	const proposal = await assertCanPayForProposal(proposalId, requestedBy);
@@ -421,4 +415,18 @@ export const refundStripePaymentInDB = async (id: string) => {
 	await getStripe().refunds.create({ payment_intent: paymentIntentId });
 
 	return prisma.payment.update({ where: { id }, data: { status: "REFUNDED" } });
+};
+
+export const paymentService = {
+	createStripeCheckoutInDB,
+	markPaymentSucceededByProviderIdInDB,
+	markPaymentFailedByProviderIdInDB,
+	createBkashPaymentInDB,
+	handleBkashCallbackInDB,
+	createSslcommerzPaymentInDB,
+	handleSslcommerzCallbackInDB,
+	getAllPaymentsFromDB,
+	getPaymentByIdFromDB,
+	getMyPaymentsFromDB,
+	refundStripePaymentInDB,
 };

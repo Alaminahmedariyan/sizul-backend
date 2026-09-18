@@ -85,7 +85,7 @@ const notifyStaffOfTaskAssignment = async (staffId: string, taskId: string, titl
 	}
 };
 
-export const createTaskInDB = async (payload: CreateTaskInput) => {
+ const createTaskInDB = async (payload: CreateTaskInput) => {
 	await assertProjectExists(payload.projectId);
 
 	if (payload.milestoneId) {
@@ -104,12 +104,12 @@ export const createTaskInDB = async (payload: CreateTaskInput) => {
 	return task;
 };
 
-export const getAllTasksFromDB = async (query: Record<string, unknown>) => {
+ const getAllTasksFromDB = async (query: Record<string, unknown>) => {
 	const queryBuilder = new QueryBuilder<ProjectTask>(taskDelegate, projectTaskQueryConfig);
 	return queryBuilder.execute(query);
 };
 
-export const getTaskByIdFromDB = async (id: string) => {
+ const getTaskByIdFromDB = async (id: string) => {
 	const task = await prisma.projectTask.findUnique({
 		where: { id },
 		include: { project: true, milestone: true, assignedStaff: true },
@@ -122,7 +122,7 @@ export const getTaskByIdFromDB = async (id: string) => {
 	return task;
 };
 
-export const updateTaskInDB = async (id: string, payload: UpdateTaskInput) => {
+ const updateTaskInDB = async (id: string, payload: UpdateTaskInput) => {
 	const existing = await assertTaskExists(id);
 
 	if (payload.milestoneId) {
@@ -141,7 +141,7 @@ export const updateTaskInDB = async (id: string, payload: UpdateTaskInput) => {
 	return updated;
 };
 
-export const updateTaskStatusInDB = async (id: string, status: TaskStatus) => {
+ const updateTaskStatusInDB = async (id: string, status: TaskStatus) => {
 	const existing = await assertTaskExists(id);
 
 	const completedAt = status === "COMPLETED" ? new Date() : existing.status === "COMPLETED" ? null : existing.completedAt;
@@ -149,7 +149,7 @@ export const updateTaskStatusInDB = async (id: string, status: TaskStatus) => {
 	return prisma.projectTask.update({ where: { id }, data: { status, completedAt } });
 };
 
-export const deleteTaskFromDB = async (id: string) => {
+ const deleteTaskFromDB = async (id: string) => {
 	await assertTaskExists(id);
 	await prisma.projectTask.delete({ where: { id } });
 };
@@ -160,7 +160,7 @@ export const deleteTaskFromDB = async (id: string) => {
 // Notifies the assigned staff member once per task per day when its dueDate
 // falls within the next 24 hours and it isn't already COMPLETED/CANCELLED.
 // ------------------------------------------------------------------
-export const notifyDueTasksInDB = async () => {
+ const notifyDueTasksInDB = async () => {
 	const now = new Date();
 	const in24h = new Date(now.getTime() + 24 * 60 * 60 * 1000);
 	const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -205,4 +205,14 @@ export const notifyDueTasksInDB = async () => {
 	}
 
 	return { checked: dueSoonTasks.length, notified };
+};
+
+export const projectTaskService = {
+	createTaskInDB,
+	getAllTasksFromDB,
+	getTaskByIdFromDB,
+	updateTaskInDB,
+	updateTaskStatusInDB,
+	deleteTaskFromDB,
+	notifyDueTasksInDB,
 };

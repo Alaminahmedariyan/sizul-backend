@@ -8,16 +8,8 @@ import { Prisma } from "../../../generated/prisma/client";
 import type { ClientReview } from "../../../generated/prisma/client";
 import { clientReviewQueryConfig } from "./clientReview.constant";
 import { notifyAdmins } from "../notification/notification.service";
+import type { CreateReviewInput } from "./clientReview.interface";
 
-type CreateReviewInput = {
-	projectId?: string;
-	rating: number;
-	title?: string;
-	content: string;
-	serviceQuality?: number;
-	communication?: number;
-	delivery?: number;
-};
 
 const reviewDelegate = prisma.clientReview as unknown as PrismaDelegate<ClientReview>;
 
@@ -103,4 +95,13 @@ export const deleteClientReviewFromDB = async (id: string) => {
 		throw new AppError(StatusCodes.NOT_FOUND, "Review not found.");
 	}
 	await prisma.clientReview.delete({ where: { id } });
+};
+
+export const clientReviewService = {
+	createMyClientReviewInDB,
+	getAllClientReviewsFromDB,
+	getClientReviewByIdFromDB,
+	updateReviewApprovalInDB,
+	updateReviewFeaturedInDB,
+	deleteClientReviewFromDB,
 };

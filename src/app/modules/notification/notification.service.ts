@@ -7,12 +7,8 @@ import { prisma } from "../../../lib/prisma";
 import { Prisma } from "../../../generated/prisma/client";
 import type { Notification } from "../../../generated/prisma/client";
 import { notificationQueryConfig } from "./notification.constant";
+import type { NotificationEntityType, NotificationType } from "./notification.interface";
 
-type NotificationType =
-	| "LEAD_NEW" | "LEAD_ASSIGNED" | "LEAD_STATUS_CHANGED" | "PROPOSAL_SENT" | "PROPOSAL_ACCEPTED"
-	| "PROPOSAL_REJECTED" | "PROJECT_UPDATE" | "TASK_ASSIGNED" | "TASK_DUE" | "CONSULTATION_SCHEDULED"
-	| "MESSAGE_RECEIVED" | "REVIEW_RECEIVED" | "SEO_REPORT" | "SYSTEM";
-type NotificationEntityType = "LEAD" | "PROPOSAL" | "PROJECT" | "TASK" | "CONSULTATION" | "MESSAGE" | "REVIEW" | "USER";
 
 const notificationDelegate = prisma.notification as unknown as PrismaDelegate<Notification>;
 
@@ -88,4 +84,15 @@ export const markAllNotificationsReadInDB = async (userId: string) => {
 export const deleteMyNotificationFromDB = async (id: string, userId: string) => {
 	await assertOwnedNotification(id, userId);
 	await prisma.notification.delete({ where: { id } });
+};
+
+
+export const notificationService = {
+	createNotification,
+	notifyAdmins,
+	createNotificationInDB,
+	getMyNotificationsFromDB,
+	markNotificationReadInDB,
+	markAllNotificationsReadInDB,
+	deleteMyNotificationFromDB,
 };

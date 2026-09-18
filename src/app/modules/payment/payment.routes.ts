@@ -2,12 +2,13 @@ import { Router } from "express";
 
 import { requireAuth, requireRole } from "../../middlewares/requireAuth";
 import { validateRequest } from "../../middlewares/validateRequest";
-import * as paymentController from "./payment.controller";
+
 import {
 	createBkashCheckoutValidation,
 	createSslcommerzCheckoutValidation,
 	createStripeCheckoutValidation,
 } from "./payment.validation";
+import { paymentController } from "./payment.controller";
 
 const router = Router();
 

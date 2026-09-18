@@ -33,11 +33,11 @@ const assertTestimonialExists = async (id: string) => {
 	return testimonial;
 };
 
-export const createTestimonialInDB = async (payload: CreateTestimonialInput) => {
+ const createTestimonialInDB = async (payload: CreateTestimonialInput) => {
 	return prisma.testimonial.create({ data: payload as Prisma.TestimonialUncheckedCreateInput });
 };
 
-export const getAllTestimonialsFromDB = async (query: Record<string, unknown>, { publicOnly }: { publicOnly: boolean }) => {
+ const getAllTestimonialsFromDB = async (query: Record<string, unknown>, { publicOnly }: { publicOnly: boolean }) => {
 	const effectiveQuery: Record<string, unknown> = { ...query };
 	if (publicOnly) {
 		effectiveQuery.status = "PUBLISHED";
@@ -47,16 +47,16 @@ export const getAllTestimonialsFromDB = async (query: Record<string, unknown>, {
 	return queryBuilder.execute(effectiveQuery);
 };
 
-export const getTestimonialByIdFromDB = async (id: string) => {
+ const getTestimonialByIdFromDB = async (id: string) => {
 	return assertTestimonialExists(id);
 };
 
-export const updateTestimonialInDB = async (id: string, payload: UpdateTestimonialInput) => {
+ const updateTestimonialInDB = async (id: string, payload: UpdateTestimonialInput) => {
 	await assertTestimonialExists(id);
 	return prisma.testimonial.update({ where: { id }, data: payload as Prisma.TestimonialUncheckedUpdateInput });
 };
 
-export const updateTestimonialStatusInDB = async (id: string, status: ContentStatus) => {
+ const updateTestimonialStatusInDB = async (id: string, status: ContentStatus) => {
 	const existing = await assertTestimonialExists(id);
 
 	const publishedAt = status === "PUBLISHED" && !existing.publishedAt ? new Date() : existing.publishedAt;
@@ -64,7 +64,16 @@ export const updateTestimonialStatusInDB = async (id: string, status: ContentSta
 	return prisma.testimonial.update({ where: { id }, data: { status, publishedAt } });
 };
 
-export const deleteTestimonialFromDB = async (id: string) => {
+ const deleteTestimonialFromDB = async (id: string) => {
 	await assertTestimonialExists(id);
 	await prisma.testimonial.delete({ where: { id } });
+};
+
+export const testimonialService = {
+	createTestimonialInDB,
+	getAllTestimonialsFromDB,
+	getTestimonialByIdFromDB,
+	updateTestimonialInDB,
+	updateTestimonialStatusInDB,
+	deleteTestimonialFromDB,
 };

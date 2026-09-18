@@ -44,12 +44,12 @@ const assertMilestoneExists = async (id: string) => {
 	return milestone;
 };
 
-export const createMilestoneInDB = async (payload: CreateMilestoneInput) => {
+ const createMilestoneInDB = async (payload: CreateMilestoneInput) => {
 	await assertProjectExists(payload.projectId);
 	return prisma.projectMilestone.create({ data: payload as Prisma.ProjectMilestoneUncheckedCreateInput });
 };
 
-export const getAllMilestonesFromDB = async (query: Record<string, unknown>) => {
+ const getAllMilestonesFromDB = async (query: Record<string, unknown>) => {
 	const effectiveQuery: Record<string, unknown> = { ...query };
 	if (!effectiveQuery.sort && !effectiveQuery.sortBy) {
 		effectiveQuery.sortBy = "order";
@@ -60,7 +60,7 @@ export const getAllMilestonesFromDB = async (query: Record<string, unknown>) => 
 	return queryBuilder.execute(effectiveQuery);
 };
 
-export const getMilestoneByIdFromDB = async (id: string) => {
+ const getMilestoneByIdFromDB = async (id: string) => {
 	const milestone = await prisma.projectMilestone.findUnique({
 		where: { id },
 		include: { project: true, tasks: { orderBy: { createdAt: "desc" } } },
@@ -73,12 +73,12 @@ export const getMilestoneByIdFromDB = async (id: string) => {
 	return milestone;
 };
 
-export const updateMilestoneInDB = async (id: string, payload: UpdateMilestoneInput) => {
+ const updateMilestoneInDB = async (id: string, payload: UpdateMilestoneInput) => {
 	await assertMilestoneExists(id);
 	return prisma.projectMilestone.update({ where: { id }, data: payload as Prisma.ProjectMilestoneUncheckedUpdateInput });
 };
 
-export const updateMilestoneStatusInDB = async (id: string, status: MilestoneStatus) => {
+ const updateMilestoneStatusInDB = async (id: string, status: MilestoneStatus) => {
 	const existing = await assertMilestoneExists(id);
 
 	const completedAt = status === "COMPLETED" ? new Date() : existing.status === "COMPLETED" ? null : existing.completedAt;
@@ -86,7 +86,16 @@ export const updateMilestoneStatusInDB = async (id: string, status: MilestoneSta
 	return prisma.projectMilestone.update({ where: { id }, data: { status, completedAt } });
 };
 
-export const deleteMilestoneFromDB = async (id: string) => {
+ const deleteMilestoneFromDB = async (id: string) => {
 	await assertMilestoneExists(id);
 	await prisma.projectMilestone.delete({ where: { id } });
+};
+
+export const projectMilestoneService = {
+	createMilestoneInDB,
+	getAllMilestonesFromDB,
+	getMilestoneByIdFromDB,
+	updateMilestoneInDB,
+	updateMilestoneStatusInDB,
+	deleteMilestoneFromDB,
 };

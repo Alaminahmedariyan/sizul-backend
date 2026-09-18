@@ -7,27 +7,8 @@ import { prisma } from "../../../lib/prisma";
 import { Prisma } from "../../../generated/prisma/client";
 import type { CaseStudy } from "../../../generated/prisma/client";
 import { caseStudyQueryConfig } from "./caseStudy.constant";
+import type { ContentStatus, CreateCaseStudyInput, UpdateCaseStudyInput } from "./caseStudy.interface";
 
-type ContentStatus = "DRAFT" | "PUBLISHED" | "ARCHIVED";
-
-type CreateCaseStudyInput = {
-	title: string;
-	slug: string;
-	clientName?: string;
-	industry?: string;
-	location?: string;
-	coverImage?: string;
-	problem?: string;
-	strategy?: string;
-	implementation?: string;
-	results?: string;
-	metrics?: unknown;
-	seoTitle?: string;
-	seoDescription?: string;
-	isFeatured: boolean;
-};
-
-type UpdateCaseStudyInput = Partial<Omit<CreateCaseStudyInput, "isFeatured">> & { isFeatured?: boolean };
 
 const caseStudyDelegate = prisma.caseStudy as unknown as PrismaDelegate<CaseStudy>;
 
@@ -131,4 +112,16 @@ export const unlinkCaseStudyServiceFromDB = async (caseStudyId: string, serviceI
 export const deleteCaseStudyFromDB = async (id: string) => {
 	await assertCaseStudyExists(id);
 	await prisma.caseStudy.delete({ where: { id } });
+};
+
+export const caseStudyService = {
+	createCaseStudyInDB,
+	getAllCaseStudiesFromDB,
+	getCaseStudyBySlugFromDB,
+	getCaseStudyByIdFromDB,
+	updateCaseStudyInDB,
+	updateCaseStudyStatusInDB,
+	linkCaseStudyServiceInDB,
+	unlinkCaseStudyServiceFromDB,
+	deleteCaseStudyFromDB,
 };

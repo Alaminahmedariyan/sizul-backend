@@ -3,9 +3,10 @@ import type { Request, Response } from "express";
 
 import { catchAsync } from "../../utils/catchAsync";
 import { sendResponse } from "../../utils/sendResponse";
-import * as userService from "./user.service";
+import { userService } from "./user.service";
 
-export const getAllUsers = catchAsync(async (req: Request, res: Response) => {
+
+ const getAllUsers = catchAsync(async (req: Request, res: Response) => {
 	const { data, meta } = await userService.getAllUsersFromDB(req.query as Record<string, unknown>);
 
 	sendResponse(res, {
@@ -17,7 +18,7 @@ export const getAllUsers = catchAsync(async (req: Request, res: Response) => {
 	});
 });
 
-export const getMe = catchAsync(async (req: Request, res: Response) => {
+ const getMe = catchAsync(async (req: Request, res: Response) => {
 	const user = await userService.getUserByIdFromDB(req.user?.id ?? "");
 
 	sendResponse(res, {
@@ -28,7 +29,7 @@ export const getMe = catchAsync(async (req: Request, res: Response) => {
 	});
 });
 
-export const updateMe = catchAsync(async (req: Request, res: Response) => {
+ const updateMe = catchAsync(async (req: Request, res: Response) => {
 	const user = await userService.updateMyProfileInDB(req.user?.id ?? "", req.body);
 
 	sendResponse(res, {
@@ -39,7 +40,7 @@ export const updateMe = catchAsync(async (req: Request, res: Response) => {
 	});
 });
 
-export const getUserById = catchAsync(async (req: Request, res: Response) => {
+ const getUserById = catchAsync(async (req: Request, res: Response) => {
 	const user = await userService.getUserByIdFromDB(req.params.id as string);
 
 	sendResponse(res, {
@@ -50,7 +51,7 @@ export const getUserById = catchAsync(async (req: Request, res: Response) => {
 	});
 });
 
-export const updateUserRole = catchAsync(async (req: Request, res: Response) => {
+ const updateUserRole = catchAsync(async (req: Request, res: Response) => {
 	const user = await userService.updateUserRoleInDB(req.params.id as string, req.body.role);
 
 	sendResponse(res, {
@@ -61,7 +62,7 @@ export const updateUserRole = catchAsync(async (req: Request, res: Response) => 
 	});
 });
 
-export const updateUserStatus = catchAsync(async (req: Request, res: Response) => {
+ const updateUserStatus = catchAsync(async (req: Request, res: Response) => {
 	const user = await userService.updateUserStatusInDB(req.params.id as string, req.body.status);
 
 	sendResponse(res, {
@@ -71,3 +72,12 @@ export const updateUserStatus = catchAsync(async (req: Request, res: Response) =
 		data: user,
 	});
 });
+
+export const userController = {
+	getAllUsers,
+	getMe,
+	updateMe,
+	getUserById,
+	updateUserRole,
+	updateUserStatus,
+};

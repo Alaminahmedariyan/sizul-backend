@@ -3,9 +3,10 @@ import type { Request, Response } from "express";
 
 import { catchAsync } from "../../utils/catchAsync";
 import { sendResponse } from "../../utils/sendResponse";
-import * as staffService from "./staff.service";
+import { staffService } from "./staff.service";
 
-export const createStaff = catchAsync(async (req: Request, res: Response) => {
+
+ const createStaff = catchAsync(async (req: Request, res: Response) => {
 	const staff = await staffService.createStaffInDB(req.body);
 
 	sendResponse(res, {
@@ -16,7 +17,7 @@ export const createStaff = catchAsync(async (req: Request, res: Response) => {
 	});
 });
 
-export const getAllStaff = catchAsync(async (req: Request, res: Response) => {
+ const getAllStaff = catchAsync(async (req: Request, res: Response) => {
 	const { data, meta } = await staffService.getAllStaffFromDB(req.query as Record<string, unknown>);
 
 	sendResponse(res, {
@@ -28,7 +29,7 @@ export const getAllStaff = catchAsync(async (req: Request, res: Response) => {
 	});
 });
 
-export const getStaffById = catchAsync(async (req: Request, res: Response) => {
+ const getStaffById = catchAsync(async (req: Request, res: Response) => {
 	const staff = await staffService.getStaffByIdFromDB(req.params.id as string);
 
 	sendResponse(res, {
@@ -39,7 +40,7 @@ export const getStaffById = catchAsync(async (req: Request, res: Response) => {
 	});
 });
 
-export const updateStaff = catchAsync(async (req: Request, res: Response) => {
+ const updateStaff = catchAsync(async (req: Request, res: Response) => {
 	const staff = await staffService.updateStaffInDB(req.params.id as string, req.body);
 
 	sendResponse(res, {
@@ -50,7 +51,7 @@ export const updateStaff = catchAsync(async (req: Request, res: Response) => {
 	});
 });
 
-export const updateStaffStatus = catchAsync(async (req: Request, res: Response) => {
+ const updateStaffStatus = catchAsync(async (req: Request, res: Response) => {
 	const staff = await staffService.updateStaffStatusInDB(req.params.id as string, req.body.status);
 
 	sendResponse(res, {
@@ -61,7 +62,7 @@ export const updateStaffStatus = catchAsync(async (req: Request, res: Response) 
 	});
 });
 
-export const deleteStaff = catchAsync(async (req: Request, res: Response) => {
+ const deleteStaff = catchAsync(async (req: Request, res: Response) => {
 	await staffService.deleteStaffFromDB(req.params.id as string);
 
 	sendResponse(res, {
@@ -71,3 +72,12 @@ export const deleteStaff = catchAsync(async (req: Request, res: Response) => {
 		data: null,
 	});
 });
+
+export const staffController = {
+	createStaff,
+	getAllStaff,
+	getStaffById,
+	updateStaff,
+	updateStaffStatus,
+	deleteStaff,
+};

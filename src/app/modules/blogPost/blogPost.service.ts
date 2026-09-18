@@ -7,24 +7,8 @@ import { prisma } from "../../../lib/prisma";
 import { Prisma } from "../../../generated/prisma/client";
 import type { BlogPost } from "../../../generated/prisma/client";
 import { blogPostQueryConfig } from "./blogPost.constant";
+import type { ContentStatus, CreatePostInput, UpdatePostInput } from "./blogPost.interface";
 
-type ContentStatus = "DRAFT" | "PUBLISHED" | "ARCHIVED";
-
-type CreatePostInput = {
-	categoryId?: string;
-	title: string;
-	slug: string;
-	excerpt?: string;
-	content: string;
-	featuredImage?: string;
-	seoTitle?: string;
-	seoDescription?: string;
-	canonicalUrl?: string;
-	schemaMarkup?: unknown;
-	tagIds: string[];
-};
-
-type UpdatePostInput = Partial<Omit<CreatePostInput, "tagIds">> & { tagIds?: string[] };
 
 const postDelegate = prisma.blogPost as unknown as PrismaDelegate<BlogPost>;
 
@@ -165,4 +149,14 @@ export const updateBlogPostStatusInDB = async (id: string, status: ContentStatus
 export const deleteBlogPostFromDB = async (id: string) => {
 	await assertPostExists(id);
 	await prisma.blogPost.delete({ where: { id } });
+};
+
+export const blogPostService = {
+	createBlogPostInDB,
+	getAllBlogPostsFromDB,
+	getBlogPostBySlugFromDB,
+	getBlogPostByIdFromDB,
+	updateBlogPostInDB,
+	updateBlogPostStatusInDB,
+	deleteBlogPostFromDB,
 };

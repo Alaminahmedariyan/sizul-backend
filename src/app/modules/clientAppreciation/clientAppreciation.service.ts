@@ -7,29 +7,8 @@ import { prisma } from "../../../lib/prisma";
 import { Prisma } from "../../../generated/prisma/client";
 import type { ClientAppreciation } from "../../../generated/prisma/client";
 import { clientAppreciationQueryConfig } from "./clientAppreciation.constant";
+import type { AppreciationType, CreateAppreciationInput, UpdateAppreciationInput } from "./clientAppreciation.interface";
 
-type AppreciationType = "THANK_YOU_NOTE" | "GIFT" | "REFERRAL" | "BONUS" | "TESTIMONIAL" | "OTHER";
-
-type CreateAppreciationInput = {
-	clientId: string;
-	projectId?: string;
-	type: AppreciationType;
-	amount?: number;
-	currency?: string;
-	title?: string;
-	description?: string;
-	receivedAt?: Date;
-};
-
-type UpdateAppreciationInput = {
-	projectId?: string | null;
-	type?: AppreciationType;
-	amount?: number | null;
-	currency?: string | null;
-	title?: string | null;
-	description?: string | null;
-	receivedAt?: Date;
-};
 
 const appreciationDelegate = prisma.clientAppreciation as unknown as PrismaDelegate<ClientAppreciation>;
 
@@ -100,4 +79,12 @@ export const updateAppreciationInDB = async (id: string, payload: UpdateApprecia
 export const deleteAppreciationFromDB = async (id: string) => {
 	await assertAppreciationExists(id);
 	await prisma.clientAppreciation.delete({ where: { id } });
+};
+
+export const clientAppreciationService = {
+	createAppreciationInDB,
+	getAllAppreciationsFromDB,
+	getAppreciationByIdFromDB,
+	updateAppreciationInDB,
+	deleteAppreciationFromDB,
 };

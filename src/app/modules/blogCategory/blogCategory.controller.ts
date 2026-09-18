@@ -3,34 +3,90 @@ import type { Request, Response } from "express";
 
 import { catchAsync } from "../../utils/catchAsync";
 import { sendResponse } from "../../utils/sendResponse";
-import * as categoryService from "./blogCategory.service";
+import { blogCategoryService } from "./blogCategory.service";
 
-export const createBlogCategory = catchAsync(async (req: Request, res: Response) => {
-	const category = await categoryService.createBlogCategoryInDB(req.body);
-	sendResponse(res, { success: true, statusCode: StatusCodes.CREATED, message: "Category created successfully.", data: category });
+const createBlogCategory = catchAsync(async (req: Request, res: Response) => {
+  const category = await blogCategoryService.createBlogCategoryInDB(req.body);
+  sendResponse(res, {
+    success: true,
+    statusCode: StatusCodes.CREATED,
+    message: "Category created successfully.",
+    data: category,
+  });
 });
 
-export const getAllBlogCategoriesPublic = catchAsync(async (req: Request, res: Response) => {
-	const { data, meta } = await categoryService.getAllBlogCategoriesFromDB(req.query as Record<string, unknown>, { publicOnly: true });
-	sendResponse(res, { success: true, statusCode: StatusCodes.OK, message: "Categories retrieved successfully.", data, meta });
+const getAllBlogCategoriesPublic = catchAsync(
+  async (req: Request, res: Response) => {
+    const { data, meta } = await blogCategoryService.getAllBlogCategoriesFromDB(
+      req.query as Record<string, unknown>,
+      { publicOnly: true },
+    );
+    sendResponse(res, {
+      success: true,
+      statusCode: StatusCodes.OK,
+      message: "Categories retrieved successfully.",
+      data,
+      meta,
+    });
+  },
+);
+
+const getAllBlogCategoriesAdmin = catchAsync(
+  async (req: Request, res: Response) => {
+    const { data, meta } = await blogCategoryService.getAllBlogCategoriesFromDB(
+      req.query as Record<string, unknown>,
+      { publicOnly: false },
+    );
+    sendResponse(res, {
+      success: true,
+      statusCode: StatusCodes.OK,
+      message: "Categories retrieved successfully.",
+      data,
+      meta,
+    });
+  },
+);
+
+const getBlogCategoryById = catchAsync(async (req: Request, res: Response) => {
+  const category = await blogCategoryService.getBlogCategoryByIdFromDB(
+    req.params.id as string,
+  );
+  sendResponse(res, {
+    success: true,
+    statusCode: StatusCodes.OK,
+    message: "Category retrieved successfully.",
+    data: category,
+  });
 });
 
-export const getAllBlogCategoriesAdmin = catchAsync(async (req: Request, res: Response) => {
-	const { data, meta } = await categoryService.getAllBlogCategoriesFromDB(req.query as Record<string, unknown>, { publicOnly: false });
-	sendResponse(res, { success: true, statusCode: StatusCodes.OK, message: "Categories retrieved successfully.", data, meta });
+const updateBlogCategory = catchAsync(async (req: Request, res: Response) => {
+  const category = await blogCategoryService.updateBlogCategoryInDB(
+    req.params.id as string,
+    req.body,
+  );
+  sendResponse(res, {
+    success: true,
+    statusCode: StatusCodes.OK,
+    message: "Category updated successfully.",
+    data: category,
+  });
 });
 
-export const getBlogCategoryById = catchAsync(async (req: Request, res: Response) => {
-	const category = await categoryService.getBlogCategoryByIdFromDB(req.params.id as string);
-	sendResponse(res, { success: true, statusCode: StatusCodes.OK, message: "Category retrieved successfully.", data: category });
+const deleteBlogCategory = catchAsync(async (req: Request, res: Response) => {
+  await blogCategoryService.deleteBlogCategoryFromDB(req.params.id as string);
+  sendResponse(res, {
+    success: true,
+    statusCode: StatusCodes.OK,
+    message: "Category deleted successfully.",
+    data: null,
+  });
 });
 
-export const updateBlogCategory = catchAsync(async (req: Request, res: Response) => {
-	const category = await categoryService.updateBlogCategoryInDB(req.params.id as string, req.body);
-	sendResponse(res, { success: true, statusCode: StatusCodes.OK, message: "Category updated successfully.", data: category });
-});
-
-export const deleteBlogCategory = catchAsync(async (req: Request, res: Response) => {
-	await categoryService.deleteBlogCategoryFromDB(req.params.id as string);
-	sendResponse(res, { success: true, statusCode: StatusCodes.OK, message: "Category deleted successfully.", data: null });
-});
+export const blogCategoryController = {
+	createBlogCategory,
+	getAllBlogCategoriesPublic,
+	getAllBlogCategoriesAdmin,
+	getBlogCategoryById,
+	updateBlogCategory,
+	deleteBlogCategory,
+};

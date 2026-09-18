@@ -3,9 +3,9 @@ import type { Request, Response } from "express";
 
 import { catchAsync } from "../../utils/catchAsync";
 import { sendResponse } from "../../utils/sendResponse";
-import * as clientService from "./client.service";
+import { clientService } from "./client.service";
 
-export const createClient = catchAsync(async (req: Request, res: Response) => {
+ const createClient = catchAsync(async (req: Request, res: Response) => {
 	const client = await clientService.createClientInDB(req.body);
 
 	sendResponse(res, {
@@ -16,7 +16,7 @@ export const createClient = catchAsync(async (req: Request, res: Response) => {
 	});
 });
 
-export const getAllClients = catchAsync(async (req: Request, res: Response) => {
+ const getAllClients = catchAsync(async (req: Request, res: Response) => {
 	const { data, meta } = await clientService.getAllClientsFromDB(req.query as Record<string, unknown>);
 
 	sendResponse(res, {
@@ -28,7 +28,7 @@ export const getAllClients = catchAsync(async (req: Request, res: Response) => {
 	});
 });
 
-export const getClientById = catchAsync(async (req: Request, res: Response) => {
+ const getClientById = catchAsync(async (req: Request, res: Response) => {
 	const client = await clientService.getClientByIdFromDB(req.params.id as string);
 
 	sendResponse(res, {
@@ -39,7 +39,7 @@ export const getClientById = catchAsync(async (req: Request, res: Response) => {
 	});
 });
 
-export const getMyClientProfile = catchAsync(async (req: Request, res: Response) => {
+ const getMyClientProfile = catchAsync(async (req: Request, res: Response) => {
 	const client = await clientService.getMyClientProfileFromDB(req.user?.id ?? "");
 
 	sendResponse(res, {
@@ -50,7 +50,7 @@ export const getMyClientProfile = catchAsync(async (req: Request, res: Response)
 	});
 });
 
-export const updateMyClientProfile = catchAsync(async (req: Request, res: Response) => {
+ const updateMyClientProfile = catchAsync(async (req: Request, res: Response) => {
 	const client = await clientService.updateMyClientProfileInDB(req.user?.id ?? "", req.body);
 
 	sendResponse(res, {
@@ -61,7 +61,7 @@ export const updateMyClientProfile = catchAsync(async (req: Request, res: Respon
 	});
 });
 
-export const updateClient = catchAsync(async (req: Request, res: Response) => {
+ const updateClient = catchAsync(async (req: Request, res: Response) => {
 	const client = await clientService.updateClientInDB(req.params.id as string, req.body);
 
 	sendResponse(res, {
@@ -72,7 +72,7 @@ export const updateClient = catchAsync(async (req: Request, res: Response) => {
 	});
 });
 
-export const updateClientActive = catchAsync(async (req: Request, res: Response) => {
+ const updateClientActive = catchAsync(async (req: Request, res: Response) => {
 	const client = await clientService.updateClientActiveInDB(req.params.id as string, req.body.isActive);
 
 	sendResponse(res, {
@@ -83,7 +83,7 @@ export const updateClientActive = catchAsync(async (req: Request, res: Response)
 	});
 });
 
-export const deleteClient = catchAsync(async (req: Request, res: Response) => {
+ const deleteClient = catchAsync(async (req: Request, res: Response) => {
 	await clientService.deleteClientFromDB(req.params.id as string);
 
 	sendResponse(res, {
@@ -93,3 +93,14 @@ export const deleteClient = catchAsync(async (req: Request, res: Response) => {
 		data: null,
 	});
 });
+
+export const clientController = {
+	createClient,
+	getAllClients,
+	getClientById,
+	getMyClientProfile,
+	updateMyClientProfile,
+	updateClient,
+	updateClientActive,
+	deleteClient,
+};

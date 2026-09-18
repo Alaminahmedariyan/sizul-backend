@@ -2,8 +2,8 @@ import { Router } from "express";
 
 import { requireAuth, requireRole } from "../../middlewares/requireAuth";
 import { validateRequest } from "../../middlewares/validateRequest";
-import * as staffController from "./staff.controller";
 import { createStaffValidation, updateStaffStatusValidation, updateStaffValidation } from "./staff.validation";
+import { staffController } from "./staff.controller";
 
 const router = Router();
 

@@ -7,9 +7,8 @@ import { prisma } from "../../../lib/prisma";
 import { Prisma } from "../../../generated/prisma/client";
 import type { FAQ } from "../../../generated/prisma/client";
 import { faqQueryConfig } from "./faq.constant";
+import type { CreateFaqInput, UpdateFaqInput } from "./faq.interface";
 
-type CreateFaqInput = { question: string; answer: string; category?: string; isActive: boolean; order: number };
-type UpdateFaqInput = { question?: string; answer?: string; category?: string | null; isActive?: boolean; order?: number };
 
 const faqDelegate = prisma.fAQ as unknown as PrismaDelegate<FAQ>;
 
@@ -51,4 +50,12 @@ export const updateFaqInDB = async (id: string, payload: UpdateFaqInput) => {
 export const deleteFaqFromDB = async (id: string) => {
 	await assertFaqExists(id);
 	await prisma.fAQ.delete({ where: { id } });
+};
+
+export const faqService = {
+	createFaqInDB,
+	getAllFaqsFromDB,
+	getFaqByIdFromDB,
+	updateFaqInDB,
+	deleteFaqFromDB,
 };

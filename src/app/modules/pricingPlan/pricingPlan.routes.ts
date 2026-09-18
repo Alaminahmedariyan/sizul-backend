@@ -2,8 +2,9 @@ import { Router } from "express";
 
 import { requireAuth, requireRole } from "../../middlewares/requireAuth";
 import { validateRequest } from "../../middlewares/validateRequest";
-import * as pricingPlanController from "./pricingPlan.controller";
+
 import { createPricingPlanValidation, updatePricingPlanValidation } from "./pricingPlan.validation";
+import { pricingPlanController } from "./pricingPlan.controller";
 
 const router = Router();
 

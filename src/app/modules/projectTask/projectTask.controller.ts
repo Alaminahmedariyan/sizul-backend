@@ -3,10 +3,10 @@ import type { Request, Response } from "express";
 
 import { catchAsync } from "../../utils/catchAsync";
 import { sendResponse } from "../../utils/sendResponse";
-import * as taskService from "./projectTask.service";
+import { projectTaskService } from "./projectTask.service";
 
-export const createTask = catchAsync(async (req: Request, res: Response) => {
-	const task = await taskService.createTaskInDB(req.body);
+ const createTask = catchAsync(async (req: Request, res: Response) => {
+	const task = await projectTaskService.createTaskInDB(req.body);
 
 	sendResponse(res, {
 		success: true,
@@ -16,8 +16,8 @@ export const createTask = catchAsync(async (req: Request, res: Response) => {
 	});
 });
 
-export const getAllTasks = catchAsync(async (req: Request, res: Response) => {
-	const { data, meta } = await taskService.getAllTasksFromDB(req.query as Record<string, unknown>);
+ const getAllTasks = catchAsync(async (req: Request, res: Response) => {
+	const { data, meta } = await projectTaskService.getAllTasksFromDB(req.query as Record<string, unknown>);
 
 	sendResponse(res, {
 		success: true,
@@ -28,8 +28,8 @@ export const getAllTasks = catchAsync(async (req: Request, res: Response) => {
 	});
 });
 
-export const getTaskById = catchAsync(async (req: Request, res: Response) => {
-	const task = await taskService.getTaskByIdFromDB(req.params.id as string);
+ const getTaskById = catchAsync(async (req: Request, res: Response) => {
+	const task = await projectTaskService.getTaskByIdFromDB(req.params.id as string);
 
 	sendResponse(res, {
 		success: true,
@@ -39,8 +39,8 @@ export const getTaskById = catchAsync(async (req: Request, res: Response) => {
 	});
 });
 
-export const updateTask = catchAsync(async (req: Request, res: Response) => {
-	const task = await taskService.updateTaskInDB(req.params.id as string, req.body);
+ const updateTask = catchAsync(async (req: Request, res: Response) => {
+	const task = await projectTaskService.updateTaskInDB(req.params.id as string, req.body);
 
 	sendResponse(res, {
 		success: true,
@@ -50,8 +50,8 @@ export const updateTask = catchAsync(async (req: Request, res: Response) => {
 	});
 });
 
-export const updateTaskStatus = catchAsync(async (req: Request, res: Response) => {
-	const task = await taskService.updateTaskStatusInDB(req.params.id as string, req.body.status);
+ const updateTaskStatus = catchAsync(async (req: Request, res: Response) => {
+	const task = await projectTaskService.updateTaskStatusInDB(req.params.id as string, req.body.status);
 
 	sendResponse(res, {
 		success: true,
@@ -61,8 +61,8 @@ export const updateTaskStatus = catchAsync(async (req: Request, res: Response) =
 	});
 });
 
-export const deleteTask = catchAsync(async (req: Request, res: Response) => {
-	await taskService.deleteTaskFromDB(req.params.id as string);
+ const deleteTask = catchAsync(async (req: Request, res: Response) => {
+	await projectTaskService.deleteTaskFromDB(req.params.id as string);
 
 	sendResponse(res, {
 		success: true,
@@ -71,3 +71,13 @@ export const deleteTask = catchAsync(async (req: Request, res: Response) => {
 		data: null,
 	});
 });
+
+
+export const projectTaskController = {
+	createTask,
+	getAllTasks,
+	getTaskById,
+	updateTask,
+	updateTaskStatus,
+	deleteTask,
+};

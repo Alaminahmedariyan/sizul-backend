@@ -3,9 +3,10 @@ import type { Request, Response } from "express";
 
 import { catchAsync } from "../../utils/catchAsync";
 import { sendResponse } from "../../utils/sendResponse";
-import * as projectService from "./project.service";
+import { projectService } from "./project.service";
 
-export const createProject = catchAsync(async (req: Request, res: Response) => {
+
+ const createProject = catchAsync(async (req: Request, res: Response) => {
 	const project = await projectService.createProjectInDB(req.body);
 
 	sendResponse(res, {
@@ -16,7 +17,7 @@ export const createProject = catchAsync(async (req: Request, res: Response) => {
 	});
 });
 
-export const getAllProjects = catchAsync(async (req: Request, res: Response) => {
+ const getAllProjects = catchAsync(async (req: Request, res: Response) => {
 	const { data, meta } = await projectService.getAllProjectsFromDB(req.query as Record<string, unknown>);
 
 	sendResponse(res, {
@@ -28,7 +29,7 @@ export const getAllProjects = catchAsync(async (req: Request, res: Response) => 
 	});
 });
 
-export const getProjectById = catchAsync(async (req: Request, res: Response) => {
+ const getProjectById = catchAsync(async (req: Request, res: Response) => {
 	const project = await projectService.getProjectByIdFromDB(req.params.id as string);
 
 	sendResponse(res, {
@@ -39,7 +40,7 @@ export const getProjectById = catchAsync(async (req: Request, res: Response) => 
 	});
 });
 
-export const updateProject = catchAsync(async (req: Request, res: Response) => {
+ const updateProject = catchAsync(async (req: Request, res: Response) => {
 	const project = await projectService.updateProjectInDB(req.params.id as string, req.body);
 
 	sendResponse(res, {
@@ -50,7 +51,7 @@ export const updateProject = catchAsync(async (req: Request, res: Response) => {
 	});
 });
 
-export const updateProjectStatus = catchAsync(async (req: Request, res: Response) => {
+ const updateProjectStatus = catchAsync(async (req: Request, res: Response) => {
 	const project = await projectService.updateProjectStatusInDB(req.params.id as string, req.body.status);
 
 	sendResponse(res, {
@@ -61,7 +62,7 @@ export const updateProjectStatus = catchAsync(async (req: Request, res: Response
 	});
 });
 
-export const updateProjectProgress = catchAsync(async (req: Request, res: Response) => {
+ const updateProjectProgress = catchAsync(async (req: Request, res: Response) => {
 	const project = await projectService.updateProjectProgressInDB(req.params.id as string, req.body.progress);
 
 	sendResponse(res, {
@@ -72,7 +73,7 @@ export const updateProjectProgress = catchAsync(async (req: Request, res: Respon
 	});
 });
 
-export const deleteProject = catchAsync(async (req: Request, res: Response) => {
+ const deleteProject = catchAsync(async (req: Request, res: Response) => {
 	await projectService.deleteProjectFromDB(req.params.id as string);
 
 	sendResponse(res, {
@@ -82,3 +83,14 @@ export const deleteProject = catchAsync(async (req: Request, res: Response) => {
 		data: null,
 	});
 });
+
+
+export const projectController = {
+	createProject,
+	getAllProjects,
+	getProjectById,
+	updateProject,
+	updateProjectStatus,
+	updateProjectProgress,
+	deleteProject,
+};

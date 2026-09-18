@@ -18,21 +18,29 @@ const assertExists = async (id: string) => {
 	return tag;
 };
 
-export const createBlogTagInDB = async (payload: { name: string; slug: string }) => prisma.blogTag.create({ data: payload as Prisma.BlogTagUncheckedCreateInput });
+ const createBlogTagInDB = async (payload: { name: string; slug: string }) => prisma.blogTag.create({ data: payload as Prisma.BlogTagUncheckedCreateInput });
 
-export const getAllBlogTagsFromDB = async (query: Record<string, unknown>) => {
+ const getAllBlogTagsFromDB = async (query: Record<string, unknown>) => {
 	const queryBuilder = new QueryBuilder<BlogTag>(tagDelegate, blogTagQueryConfig);
 	return queryBuilder.execute(query);
 };
 
-export const getBlogTagByIdFromDB = async (id: string) => assertExists(id);
+ const getBlogTagByIdFromDB = async (id: string) => assertExists(id);
 
-export const updateBlogTagInDB = async (id: string, payload: { name?: string; slug?: string }) => {
+ const updateBlogTagInDB = async (id: string, payload: { name?: string; slug?: string }) => {
 	await assertExists(id);
 	return prisma.blogTag.update({ where: { id }, data: payload as Prisma.BlogTagUncheckedUpdateInput });
 };
 
-export const deleteBlogTagFromDB = async (id: string) => {
+ const deleteBlogTagFromDB = async (id: string) => {
 	await assertExists(id);
 	await prisma.blogTag.delete({ where: { id } });
+};
+
+export const blogTagService = {
+	createBlogTagInDB,
+	getAllBlogTagsFromDB,
+	getBlogTagByIdFromDB,
+	updateBlogTagInDB,
+	deleteBlogTagFromDB,
 };

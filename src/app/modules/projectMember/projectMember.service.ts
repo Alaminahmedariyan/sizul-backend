@@ -12,7 +12,7 @@ type ProjectMemberRole = "LEAD" | "MEMBER" | "REVIEWER" | "OBSERVER";
 
 const projectMemberDelegate = prisma.projectMember as unknown as PrismaDelegate<ProjectMember>;
 
-export const addProjectMemberInDB = async (payload: { projectId: string; staffId: string; role: ProjectMemberRole }) => {
+ const addProjectMemberInDB = async (payload: { projectId: string; staffId: string; role: ProjectMemberRole }) => {
 	const project = await prisma.project.findUnique({ where: { id: payload.projectId } });
 	if (!project) {
 		throw new AppError(StatusCodes.BAD_REQUEST, "The provided projectId does not match any project.");
@@ -33,12 +33,12 @@ export const addProjectMemberInDB = async (payload: { projectId: string; staffId
 	return prisma.projectMember.create({ data: payload as Prisma.ProjectMemberUncheckedCreateInput });
 };
 
-export const getAllProjectMembersFromDB = async (query: Record<string, unknown>) => {
+ const getAllProjectMembersFromDB = async (query: Record<string, unknown>) => {
 	const queryBuilder = new QueryBuilder<ProjectMember>(projectMemberDelegate, projectMemberQueryConfig);
 	return queryBuilder.execute(query);
 };
 
-export const getProjectMemberByIdFromDB = async (id: string) => {
+ const getProjectMemberByIdFromDB = async (id: string) => {
 	const member = await prisma.projectMember.findUnique({ where: { id }, include: { project: true, staff: true } });
 	if (!member) {
 		throw new AppError(StatusCodes.NOT_FOUND, "Project member not found.");
@@ -46,7 +46,7 @@ export const getProjectMemberByIdFromDB = async (id: string) => {
 	return member;
 };
 
-export const updateProjectMemberRoleInDB = async (id: string, role: ProjectMemberRole) => {
+ const updateProjectMemberRoleInDB = async (id: string, role: ProjectMemberRole) => {
 	const existing = await prisma.projectMember.findUnique({ where: { id } });
 	if (!existing) {
 		throw new AppError(StatusCodes.NOT_FOUND, "Project member not found.");
@@ -55,11 +55,19 @@ export const updateProjectMemberRoleInDB = async (id: string, role: ProjectMembe
 	return prisma.projectMember.update({ where: { id }, data: { role } });
 };
 
-export const removeProjectMemberFromDB = async (id: string) => {
+ const removeProjectMemberFromDB = async (id: string) => {
 	const existing = await prisma.projectMember.findUnique({ where: { id } });
 	if (!existing) {
 		throw new AppError(StatusCodes.NOT_FOUND, "Project member not found.");
 	}
 
 	await prisma.projectMember.delete({ where: { id } });
+};
+
+export const projectMemberService = {
+	addProjectMemberInDB,
+	getAllProjectMembersFromDB,
+	getProjectMemberByIdFromDB,
+	updateProjectMemberRoleInDB,
+	removeProjectMemberFromDB,
 };

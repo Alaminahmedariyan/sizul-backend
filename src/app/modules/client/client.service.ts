@@ -7,115 +7,144 @@ import { prisma } from "../../../lib/prisma";
 import { Prisma } from "../../../generated/prisma/client";
 import type { Client } from "../../../generated/prisma/client";
 import { clientQueryConfig } from "./client.constant";
-
-type CreateClientInput = {
-	userId?: string;
-	name: string;
-	email: string;
-	phone?: string;
-	company?: string;
-	website?: string;
-	location?: string;
-	notes?: string;
-};
-
-type UpdateClientInput = {
-	userId?: string | null;
-	name?: string;
-	email?: string;
-	phone?: string | null;
-	company?: string | null;
-	website?: string | null;
-	location?: string | null;
-	notes?: string | null;
-};
-
-type UpdateMyClientProfileInput = Omit<UpdateClientInput, "userId" | "email">;
+import type {
+  CreateClientInput,
+  UpdateClientInput,
+  UpdateMyClientProfileInput,
+} from "./client.interface";
 
 const clientDelegate = prisma.client as unknown as PrismaDelegate<Client>;
 
-const assertUserExistsAndUnlinked = async (userId: string, excludeClientId?: string) => {
-	const user = await prisma.user.findUnique({ where: { id: userId }, include: { clientProfile: true } });
-	if (!user) {
-		throw new AppError(StatusCodes.BAD_REQUEST, "The provided userId does not match any user.");
-	}
-	if (user.clientProfile && user.clientProfile.id !== excludeClientId) {
-		throw new AppError(StatusCodes.CONFLICT, "This user is already linked to another client profile.");
-	}
+const assertUserExistsAndUnlinked = async (
+  userId: string,
+  excludeClientId?: string,
+) => {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    include: { clientProfile: true },
+  });
+  if (!user) {
+    throw new AppError(
+      StatusCodes.BAD_REQUEST,
+      "The provided userId does not match any user.",
+    );
+  }
+  if (user.clientProfile && user.clientProfile.id !== excludeClientId) {
+    throw new AppError(
+      StatusCodes.CONFLICT,
+      "This user is already linked to another client profile.",
+    );
+  }
 };
 
 export const createClientInDB = async (payload: CreateClientInput) => {
-	if (payload.userId) {
-		await assertUserExistsAndUnlinked(payload.userId);
-	}
+  if (payload.userId) {
+    await assertUserExistsAndUnlinked(payload.userId);
+  }
 
-	return prisma.client.create({ data: payload as Prisma.ClientUncheckedCreateInput });
+  return prisma.client.create({
+    data: payload as Prisma.ClientUncheckedCreateInput,
+  });
 };
 
 export const getAllClientsFromDB = async (query: Record<string, unknown>) => {
-	const queryBuilder = new QueryBuilder<Client>(clientDelegate, clientQueryConfig);
-	return queryBuilder.execute(query);
+  const queryBuilder = new QueryBuilder<Client>(
+    clientDelegate,
+    clientQueryConfig,
+  );
+  return queryBuilder.execute(query);
 };
 
 export const getClientByIdFromDB = async (id: string) => {
-	const client = await prisma.client.findUnique({
-		where: { id },
-		include: { user: { select: { id: true, email: true, name: true, image: true } } },
-	});
+  const client = await prisma.client.findUnique({
+    where: { id },
+    include: {
+      user: { select: { id: true, email: true, name: true, image: true } },
+    },
+  });
 
-	if (!client) {
-		throw new AppError(StatusCodes.NOT_FOUND, "Client not found.");
-	}
+  if (!client) {
+    throw new AppError(StatusCodes.NOT_FOUND, "Client not found.");
+  }
 
-	return client;
+  return client;
 };
 
 export const getMyClientProfileFromDB = async (userId: string) => {
-	const client = await prisma.client.findUnique({ where: { userId } });
+  const client = await prisma.client.findUnique({ where: { userId } });
 
-	if (!client) {
-		throw new AppError(StatusCodes.NOT_FOUND, "No client profile is linked to your account.");
-	}
+  if (!client) {
+    throw new AppError(
+      StatusCodes.NOT_FOUND,
+      "No client profile is linked to your account.",
+    );
+  }
 
-	return client;
+  return client;
 };
 
-export const updateClientInDB = async (id: string, payload: UpdateClientInput) => {
-	const existing = await prisma.client.findUnique({ where: { id } });
-	if (!existing) {
-		throw new AppError(StatusCodes.NOT_FOUND, "Client not found.");
-	}
+export const updateClientInDB = async (
+  id: string,
+  payload: UpdateClientInput,
+) => {
+  const existing = await prisma.client.findUnique({ where: { id } });
+  if (!existing) {
+    throw new AppError(StatusCodes.NOT_FOUND, "Client not found.");
+  }
 
-	if (payload.userId) {
-		await assertUserExistsAndUnlinked(payload.userId, id);
-	}
+  if (payload.userId) {
+    await assertUserExistsAndUnlinked(payload.userId, id);
+  }
 
-	return prisma.client.update({ where: { id }, data: payload as Prisma.ClientUncheckedUpdateInput });
+  return prisma.client.update({
+    where: { id },
+    data: payload as Prisma.ClientUncheckedUpdateInput,
+  });
 };
 
-export const updateMyClientProfileInDB = async (userId: string, payload: UpdateMyClientProfileInput) => {
-	const existing = await prisma.client.findUnique({ where: { userId } });
-	if (!existing) {
-		throw new AppError(StatusCodes.NOT_FOUND, "No client profile is linked to your account.");
-	}
+export const updateMyClientProfileInDB = async (
+  userId: string,
+  payload: UpdateMyClientProfileInput,
+) => {
+  const existing = await prisma.client.findUnique({ where: { userId } });
+  if (!existing) {
+    throw new AppError(
+      StatusCodes.NOT_FOUND,
+      "No client profile is linked to your account.",
+    );
+  }
 
-	return prisma.client.update({ where: { userId }, data: payload as Prisma.ClientUncheckedUpdateInput });
+  return prisma.client.update({
+    where: { userId },
+    data: payload as Prisma.ClientUncheckedUpdateInput,
+  });
 };
 
 export const updateClientActiveInDB = async (id: string, isActive: boolean) => {
-	const existing = await prisma.client.findUnique({ where: { id } });
-	if (!existing) {
-		throw new AppError(StatusCodes.NOT_FOUND, "Client not found.");
-	}
+  const existing = await prisma.client.findUnique({ where: { id } });
+  if (!existing) {
+    throw new AppError(StatusCodes.NOT_FOUND, "Client not found.");
+  }
 
-	return prisma.client.update({ where: { id }, data: { isActive } });
+  return prisma.client.update({ where: { id }, data: { isActive } });
 };
 
 export const deleteClientFromDB = async (id: string) => {
-	const existing = await prisma.client.findUnique({ where: { id } });
-	if (!existing) {
-		throw new AppError(StatusCodes.NOT_FOUND, "Client not found.");
-	}
+  const existing = await prisma.client.findUnique({ where: { id } });
+  if (!existing) {
+    throw new AppError(StatusCodes.NOT_FOUND, "Client not found.");
+  }
 
-	await prisma.client.delete({ where: { id } });
+  await prisma.client.delete({ where: { id } });
+};
+
+export const clientService = {
+  createClientInDB,
+  getAllClientsFromDB,
+  getClientByIdFromDB,
+  getMyClientProfileFromDB,
+  updateClientInDB,
+  updateMyClientProfileInDB,
+  updateClientActiveInDB,
+  deleteClientFromDB,
 };

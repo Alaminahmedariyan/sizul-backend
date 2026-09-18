@@ -3,10 +3,10 @@ import type { Request, Response } from "express";
 
 import { catchAsync } from "../../utils/catchAsync";
 import { sendResponse } from "../../utils/sendResponse";
-import * as reviewService from "./clientReview.service";
+import { clientReviewService } from "./clientReview.service";
 
-export const createMyClientReview = catchAsync(async (req: Request, res: Response) => {
-	const review = await reviewService.createMyClientReviewInDB(req.user?.id ?? "", req.body);
+ const createMyClientReview = catchAsync(async (req: Request, res: Response) => {
+	const review = await clientReviewService.createMyClientReviewInDB(req.user?.id ?? "", req.body);
 
 	sendResponse(res, {
 		success: true,
@@ -16,8 +16,8 @@ export const createMyClientReview = catchAsync(async (req: Request, res: Respons
 	});
 });
 
-export const getAllClientReviewsPublic = catchAsync(async (req: Request, res: Response) => {
-	const { data, meta } = await reviewService.getAllClientReviewsFromDB(req.query as Record<string, unknown>, {
+ const getAllClientReviewsPublic = catchAsync(async (req: Request, res: Response) => {
+	const { data, meta } = await clientReviewService.getAllClientReviewsFromDB(req.query as Record<string, unknown>, {
 		publicOnly: true,
 	});
 
@@ -30,8 +30,8 @@ export const getAllClientReviewsPublic = catchAsync(async (req: Request, res: Re
 	});
 });
 
-export const getAllClientReviewsAdmin = catchAsync(async (req: Request, res: Response) => {
-	const { data, meta } = await reviewService.getAllClientReviewsFromDB(req.query as Record<string, unknown>, {
+ const getAllClientReviewsAdmin = catchAsync(async (req: Request, res: Response) => {
+	const { data, meta } = await clientReviewService.getAllClientReviewsFromDB(req.query as Record<string, unknown>, {
 		publicOnly: false,
 	});
 
@@ -44,8 +44,8 @@ export const getAllClientReviewsAdmin = catchAsync(async (req: Request, res: Res
 	});
 });
 
-export const getClientReviewById = catchAsync(async (req: Request, res: Response) => {
-	const review = await reviewService.getClientReviewByIdFromDB(req.params.id as string);
+ const getClientReviewById = catchAsync(async (req: Request, res: Response) => {
+	const review = await clientReviewService.getClientReviewByIdFromDB(req.params.id as string);
 
 	sendResponse(res, {
 		success: true,
@@ -55,8 +55,8 @@ export const getClientReviewById = catchAsync(async (req: Request, res: Response
 	});
 });
 
-export const updateReviewApproval = catchAsync(async (req: Request, res: Response) => {
-	const review = await reviewService.updateReviewApprovalInDB(req.params.id as string, req.body.isApproved);
+ const updateReviewApproval = catchAsync(async (req: Request, res: Response) => {
+	const review = await clientReviewService.updateReviewApprovalInDB(req.params.id as string, req.body.isApproved);
 
 	sendResponse(res, {
 		success: true,
@@ -66,8 +66,8 @@ export const updateReviewApproval = catchAsync(async (req: Request, res: Respons
 	});
 });
 
-export const updateReviewFeatured = catchAsync(async (req: Request, res: Response) => {
-	const review = await reviewService.updateReviewFeaturedInDB(req.params.id as string, req.body.isFeatured);
+ const updateReviewFeatured = catchAsync(async (req: Request, res: Response) => {
+	const review = await clientReviewService.updateReviewFeaturedInDB(req.params.id as string, req.body.isFeatured);
 
 	sendResponse(res, {
 		success: true,
@@ -77,8 +77,8 @@ export const updateReviewFeatured = catchAsync(async (req: Request, res: Respons
 	});
 });
 
-export const deleteClientReview = catchAsync(async (req: Request, res: Response) => {
-	await reviewService.deleteClientReviewFromDB(req.params.id as string);
+ const deleteClientReview = catchAsync(async (req: Request, res: Response) => {
+	await clientReviewService.deleteClientReviewFromDB(req.params.id as string);
 
 	sendResponse(res, {
 		success: true,
@@ -87,3 +87,13 @@ export const deleteClientReview = catchAsync(async (req: Request, res: Response)
 		data: null,
 	});
 });
+
+export const clientReviewController = {
+	createMyClientReview,
+	getAllClientReviewsPublic,
+	getAllClientReviewsAdmin,
+	getClientReviewById,
+	updateReviewApproval,
+	updateReviewFeatured,
+	deleteClientReview,
+};

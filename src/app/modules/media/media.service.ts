@@ -30,7 +30,7 @@ const resolveFileCategory = (mimeType: string): FileCategory => {
 	return "OTHER";
 };
 
-export const uploadMediaInDB = async (file: Express.Multer.File, altText?: string, caption?: string) => {
+ const uploadMediaInDB = async (file: Express.Multer.File, altText?: string, caption?: string) => {
 	const uploadResult = await uploadFileToCloudinary(file.buffer, file.originalname, "media-library");
 
 	return prisma.media.create({
@@ -49,12 +49,12 @@ export const uploadMediaInDB = async (file: Express.Multer.File, altText?: strin
 	});
 };
 
-export const getAllMediaFromDB = async (query: Record<string, unknown>) => {
+ const getAllMediaFromDB = async (query: Record<string, unknown>) => {
 	const queryBuilder = new QueryBuilder<Media>(mediaDelegate, mediaQueryConfig);
 	return queryBuilder.execute(query);
 };
 
-export const getMediaByIdFromDB = async (id: string) => {
+ const getMediaByIdFromDB = async (id: string) => {
 	const media = await prisma.media.findUnique({ where: { id } });
 	if (!media) {
 		throw new AppError(StatusCodes.NOT_FOUND, "Media not found.");
@@ -62,7 +62,7 @@ export const getMediaByIdFromDB = async (id: string) => {
 	return media;
 };
 
-export const updateMediaInDB = async (id: string, payload: { altText?: string | null; caption?: string | null }) => {
+ const updateMediaInDB = async (id: string, payload: { altText?: string | null; caption?: string | null }) => {
 	const existing = await prisma.media.findUnique({ where: { id } });
 	if (!existing) {
 		throw new AppError(StatusCodes.NOT_FOUND, "Media not found.");
@@ -70,7 +70,7 @@ export const updateMediaInDB = async (id: string, payload: { altText?: string | 
 	return prisma.media.update({ where: { id }, data: payload as Prisma.MediaUncheckedUpdateInput });
 };
 
-export const deleteMediaFromDB = async (id: string) => {
+ const deleteMediaFromDB = async (id: string) => {
 	const existing = await prisma.media.findUnique({ where: { id } });
 	if (!existing) {
 		throw new AppError(StatusCodes.NOT_FOUND, "Media not found.");
@@ -85,4 +85,12 @@ export const deleteMediaFromDB = async (id: string) => {
 	}
 
 	await prisma.media.delete({ where: { id } });
+};
+
+export const mediaService = {
+	uploadMediaInDB,
+	getAllMediaFromDB,
+	getMediaByIdFromDB,
+	updateMediaInDB,
+	deleteMediaFromDB,
 };

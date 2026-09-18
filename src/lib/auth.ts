@@ -4,122 +4,262 @@ import { prismaAdapter } from "better-auth/adapters/prisma";
 import { bearer, emailOTP, twoFactor } from "better-auth/plugins";
 
 import config from "../app/config";
+
 import {
   otpEmailTemplate,
   resetPasswordEmailTemplate,
   verificationEmailTemplate,
   welcomeEmailTemplate,
 } from "../app/utils/emailTemplates";
+
 import { sendEmail } from "../app/utils/sendEmail";
-import { clearFailedAttempts, isLocked, recordFailedAttempt } from "../app/utils/bruteForceGuard";
+import {
+  clearFailedAttempts,
+  isLocked,
+  recordFailedAttempt,
+} from "../app/utils/bruteForceGuard";
+
 import { verifyCaptcha } from "../app/utils/verifyCaptcha";
+
+import {
+  signInEmailValidation,
+  signUpEmailValidation,
+} from "./auth.validation";
+
 import { prisma } from "./prisma";
 
-const socialProviders: Record<string, { clientId: string; clientSecret: string }> = {};
+/**
+ * ============================================================
+ * Social Providers
+ * ============================================================
+ */
 
-if (config.oauth.google.clientId && config.oauth.google.clientSecret) {
+const socialProviders: Record<
+  string,
+  {
+    clientId: string;
+    clientSecret: string;
+  }
+> = {};
+
+if (
+  config.oauth.google.clientId &&
+  config.oauth.google.clientSecret
+) {
   socialProviders.google = {
     clientId: config.oauth.google.clientId,
     clientSecret: config.oauth.google.clientSecret,
   };
 }
 
-if (config.oauth.github.clientId && config.oauth.github.clientSecret) {
+if (
+  config.oauth.github.clientId &&
+  config.oauth.github.clientSecret
+) {
   socialProviders.github = {
     clientId: config.oauth.github.clientId,
     clientSecret: config.oauth.github.clientSecret,
   };
 }
 
+/**
+ * ============================================================
+ * Better Auth Trusted Origins
+ * ============================================================
+ */
+
 const trustedOrigins = [
   "http://localhost:3000",
   "http://127.0.0.1:3000",
-  ...config.app.clientUrl.split(",").map((o) => o.trim()).filter(Boolean),
-].filter((o, i, arr) => arr.indexOf(o) === i);
 
-const APP_NAME = "Sizul";
+  ...config.app.clientUrl
+    .split(",")
+    .map((origin) => origin.trim())
+    .filter(Boolean),
+].filter(
+  (origin, index, origins) => origins.indexOf(origin) === index,
+);
+
+/**
+ * ============================================================
+ * Better Auth App Name
+ * ============================================================
+ */
+
+const APP_NAME = "Nexivo AI";
+
+/**
+ * ============================================================
+ * Better Auth
+ * ============================================================
+ */
 
 export const auth = betterAuth({
-  database: prismaAdapter(prisma, { provider: "postgresql" }),
+  /**
+   * IMPORTANT:
+   * This must be the URL of the Better Auth server.
+   *
+   * Development:
+   * http://localhost:5000
+   *
+   * OAuth callback:
+   * http://localhost:5000/api/auth/callback/google
+   */
+  baseURL: config.betterAuth.url,
+
+  /**
+   * Better Auth API base path.
+   */
+  basePath: "/api/auth",
+
+  /**
+   * ============================================================
+   * Database
+   * ============================================================
+   */
+
+  database: prismaAdapter(prisma, {
+    provider: "postgresql",
+  }),
+
+  /**
+   * ============================================================
+   * User
+   * ============================================================
+   */
 
   user: {
     additionalFields: {
       role: {
         type: "string",
         required: true,
+
+        /**
+         * Matches:
+         * role UserRole @default(CLIENT)
+         */
+
         defaultValue: "CLIENT",
-        input: false,
-      },
-      status: {
-        type: "string",
-        required: true,
-        defaultValue: "ACTIVE",
+
+        /**
+         * Users cannot choose their role during signup.
+         *
+         * Public signup:
+         * CLIENT
+         *
+         * Staff:
+         * Created through Staff module
+         *
+         * Admin:
+         * Seed / role promotion
+         */
+
         input: false,
       },
     },
   },
 
+  /**
+   * ============================================================
+   * Email + Password
+   * ============================================================
+   */
+
   emailAndPassword: {
     enabled: true,
-    requireEmailVerification: config.app.env === "production",
-    autoSignIn: true,
+
+    requireEmailVerification:
+      config.app.env === "production",
+
     minPasswordLength: 8,
     maxPasswordLength: 128,
+
     sendResetPassword: async ({ user, url }) => {
       await sendEmail({
         to: user.email,
         subject: "Reset your password",
-        html: resetPasswordEmailTemplate(user.name ?? "there", url),
+        html: resetPasswordEmailTemplate(
+          user.name ?? "there",
+          url,
+        ),
       });
     },
   },
+
+  /**
+   * ============================================================
+   * Email Verification
+   * ============================================================
+   */
 
   emailVerification: {
     sendOnSignUp: true,
     autoSignInAfterVerification: true,
+
     sendVerificationEmail: async ({ user, url }) => {
       await sendEmail({
         to: user.email,
         subject: "Verify your email",
-        html: verificationEmailTemplate(user.name ?? "there", url),
+        html: verificationEmailTemplate(
+          user.name ?? "there",
+          url,
+        ),
       });
     },
   },
 
+  /**
+   * ============================================================
+   * Social Providers
+   * ============================================================
+   */
+
   socialProviders,
+
+  /**
+   * ============================================================
+   * Session
+   * ============================================================
+   */
 
   session: {
     expiresIn: 7 * 24 * 60 * 60,
     updateAge: 24 * 60 * 60,
-    cookieCache: {
-      enabled: true,
-      maxAge: 5 * 60,
-    },
   },
+
+  /**
+   * ============================================================
+   * Trusted Origins
+   * ============================================================
+   */
 
   trustedOrigins,
 
+  /**
+   * ============================================================
+   * Cookie Configuration
+   * ============================================================
+   */
+
   advanced: {
     useSecureCookies: config.app.env === "production",
+
     defaultCookieAttributes: {
-      sameSite: config.app.env === "production" ? "none" : "lax",
-      secure: config.app.env === "production",
-    },
-    debug: config.app.env !== "production",
-  },
+      sameSite:
+        config.app.env === "production"
+          ? "none"
+          : "lax",
 
-  account: {
-    accountLinking: {
-      enabled: true,
-      trustedProviders: ["google", "github"],
+      secure:
+        config.app.env === "production",
     },
   },
 
-  rateLimit: {
-    enabled: config.app.env === "production",
-    window: 60,
-    max: 100,
-  },
+  /**
+   * ============================================================
+   * Plugins
+   * ============================================================
+   */
 
   plugins: [
     bearer(),
@@ -130,62 +270,163 @@ export const auth = betterAuth({
 
     emailOTP({
       otpLength: 6,
+
       expiresIn: 5 * 60,
+
       allowedAttempts: 5,
 
-      sendVerificationOTP: async ({ email, otp, type }) => {
-        if (type === "email-verification") {
-          return;
-        }
+      overrideDefaultEmailVerification: true,
 
-        const user = await prisma.user.findUnique({ where: { email } });
+      sendVerificationOTP: async ({
+        email,
+        otp,
+        type,
+      }) => {
+        const user = await prisma.user.findUnique({
+          where: { email },
+        });
+
         const name = user?.name ?? "there";
 
         const subjectAndPurpose =
           type === "sign-in"
-            ? { subject: "Your sign-in code", purpose: "sign in" }
-            : { subject: "Reset your password", purpose: "reset your password" };
+            ? {
+                subject: "Your sign-in code",
+                purpose: "sign in",
+              }
+            : type === "email-verification"
+              ? {
+                  subject: "Verify your email",
+                  purpose: "verify your email",
+                }
+              : {
+                  subject: "Reset your password",
+                  purpose: "reset your password",
+                };
 
         await sendEmail({
           to: email,
           subject: subjectAndPurpose.subject,
-          html: otpEmailTemplate(name, otp, 5, subjectAndPurpose.purpose),
+          html: otpEmailTemplate(
+            name,
+            otp,
+            5,
+            subjectAndPurpose.purpose,
+          ),
         });
       },
     }),
   ],
 
+  /**
+   * ============================================================
+   * Request Lifecycle Hooks
+   * ============================================================
+   */
+
   hooks: {
     before: createAuthMiddleware(async (ctx) => {
-      if (ctx.path === "/sign-in/email") {
-        const email = ctx.body?.email as string | undefined;
-        if (email && (await isLocked(email))) {
-          throw new APIError("TOO_MANY_REQUESTS", {
-            message: "Too many failed login attempts. Please try again in 15 minutes.",
+      /**
+       * --------------------------------------------------------
+       * Email Signup Validation
+       * --------------------------------------------------------
+       */
+
+      if (ctx.path === "/sign-up/email") {
+        const parsed =
+          signUpEmailValidation.safeParse(ctx.body);
+
+        if (!parsed.success) {
+          throw new APIError("BAD_REQUEST", {
+            message:
+              parsed.error.issues[0]?.message ??
+              "Invalid registration details.",
           });
         }
       }
 
+      /**
+       * --------------------------------------------------------
+       * Email Sign-in Validation
+       * --------------------------------------------------------
+       */
+
+      if (ctx.path === "/sign-in/email") {
+        const parsed =
+          signInEmailValidation.safeParse(ctx.body);
+
+        if (!parsed.success) {
+          throw new APIError("BAD_REQUEST", {
+            message:
+              parsed.error.issues[0]?.message ??
+              "Invalid login details.",
+          });
+        }
+      }
+
+      /**
+       * --------------------------------------------------------
+       * Brute-force Protection
+       * --------------------------------------------------------
+       */
+
+      if (ctx.path === "/sign-in/email") {
+        const email = ctx.body?.email as
+          | string
+          | undefined;
+
+        if (email && (await isLocked(email))) {
+          throw new APIError("TOO_MANY_REQUESTS", {
+            message:
+              "Too many failed login attempts. Please try again in 15 minutes.",
+          });
+        }
+      }
+
+      /**
+       * --------------------------------------------------------
+       * CAPTCHA
+       * --------------------------------------------------------
+       */
+
       if (ctx.path === "/sign-up/email") {
-        const captchaToken = ctx.body?.captchaToken as string | undefined;
+        const captchaToken = ctx.body?.captchaToken as
+          | string
+          | undefined;
+
         if (config.captcha.hcaptchaSecretKey) {
           if (!captchaToken) {
-            throw new APIError("BAD_REQUEST", { message: "Captcha token is required." });
+            throw new APIError("BAD_REQUEST", {
+              message: "Captcha token is required.",
+            });
           }
+
           await verifyCaptcha(captchaToken);
         }
       }
     }),
 
     after: createAuthMiddleware(async (ctx) => {
+      /**
+       * --------------------------------------------------------
+       * Failed Login Tracking
+       * --------------------------------------------------------
+       */
+
       if (ctx.path === "/sign-in/email") {
-        const email = ctx.body?.email as string | undefined;
-        const returned = ctx.context.returned as { status?: number } | undefined;
+        const email = ctx.body?.email as
+          | string
+          | undefined;
+
+        const returned = ctx.context.returned as
+          | { status?: number }
+          | undefined;
+
         const failed = Boolean(
           returned &&
             typeof returned === "object" &&
             "status" in returned &&
-            (returned.status ?? 0) >= 400
+            (returned.status ?? 0) >= 400,
         );
 
         if (email) {
@@ -199,35 +440,84 @@ export const auth = betterAuth({
     }),
   },
 
+  /**
+   * ============================================================
+   * Database Hooks
+   * ============================================================
+   *
+   * Runs for:
+   * - Email/password signup
+   * - Google signup
+   * - GitHub signup
+   *
+   * ============================================================
+   */
+
   databaseHooks: {
     user: {
       create: {
         after: async (user) => {
+          /**
+           * ----------------------------------------------------
+           * Welcome Email
+           * ----------------------------------------------------
+           */
+
           await sendEmail({
             to: user.email,
             subject: `Welcome, ${user.name}!`,
-            html: welcomeEmailTemplate(user.name ?? "there"),
+            html: welcomeEmailTemplate(user.name),
           });
 
-          const role = (user as unknown as { role?: string }).role ?? "CLIENT";
+          /**
+           * ----------------------------------------------------
+           * Auto-create Client Profile
+           * ----------------------------------------------------
+           */
 
-          if (role === "CLIENT" && user.email !== config.superAdmin.email) {
+          const role =
+            (
+              user as unknown as {
+                role?: string;
+              }
+            ).role ?? "CLIENT";
+
+          /**
+           * Only genuine public CLIENT signup should
+           * automatically create a Client profile.
+           *
+           * Admin seed is excluded using super admin email.
+           */
+
+          if (
+            role === "CLIENT" &&
+            user.email !== config.superAdmin.email
+          ) {
             try {
-              const existingClient = await prisma.client.findUnique({
-                where: { userId: user.id },
-              });
+              const existingClient =
+                await prisma.client.findUnique({
+                  where: {
+                    userId: user.id,
+                  },
+                });
 
               if (!existingClient) {
                 await prisma.client.create({
                   data: {
                     userId: user.id,
-                    name: user.name || user.email.split("@")[0] || "Client",
+                    name:
+                      user.name ||
+                      user.email.split("@")[0] ||
+                      "Client",
                     email: user.email,
                   },
                 });
               }
             } catch (error) {
-              console.error("[Auth] Failed to auto-create Client profile:", error);
+              console.error(
+                "[Auth] Failed to auto-create Client profile:",
+                error,
+              );
             }
           }
         },

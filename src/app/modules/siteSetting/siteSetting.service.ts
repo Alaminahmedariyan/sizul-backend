@@ -3,7 +3,7 @@ import { StatusCodes } from "http-status-codes";
 import AppError from "../../errors/appError";
 import { prisma } from "../../../lib/prisma";
 
-export const upsertSiteSettingInDB = async (payload: { key: string; value?: string; description?: string }) => {
+ const upsertSiteSettingInDB = async (payload: { key: string; value?: string; description?: string }) => {
 	return prisma.siteSetting.upsert({
 		where: { key: payload.key },
 		create: payload,
@@ -14,11 +14,11 @@ export const upsertSiteSettingInDB = async (payload: { key: string; value?: stri
 	});
 };
 
-export const getAllSiteSettingsFromDB = async () => {
+ const getAllSiteSettingsFromDB = async () => {
 	return prisma.siteSetting.findMany({ orderBy: { key: "asc" } });
 };
 
-export const getSiteSettingByKeyFromDB = async (key: string) => {
+ const getSiteSettingByKeyFromDB = async (key: string) => {
 	const setting = await prisma.siteSetting.findUnique({ where: { key } });
 	if (!setting) {
 		throw new AppError(StatusCodes.NOT_FOUND, "Setting not found.");
@@ -26,10 +26,17 @@ export const getSiteSettingByKeyFromDB = async (key: string) => {
 	return setting;
 };
 
-export const deleteSiteSettingFromDB = async (key: string) => {
+ const deleteSiteSettingFromDB = async (key: string) => {
 	const existing = await prisma.siteSetting.findUnique({ where: { key } });
 	if (!existing) {
 		throw new AppError(StatusCodes.NOT_FOUND, "Setting not found.");
 	}
 	await prisma.siteSetting.delete({ where: { key } });
+};
+
+export const siteSettingService = {
+	upsertSiteSettingInDB,
+	getAllSiteSettingsFromDB,
+	getSiteSettingByKeyFromDB,
+	deleteSiteSettingFromDB,
 };

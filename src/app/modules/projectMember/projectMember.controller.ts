@@ -3,9 +3,9 @@ import type { Request, Response } from "express";
 
 import { catchAsync } from "../../utils/catchAsync";
 import { sendResponse } from "../../utils/sendResponse";
-import * as projectMemberService from "./projectMember.service";
+import { projectMemberService } from "./projectMember.service";
 
-export const addProjectMember = catchAsync(async (req: Request, res: Response) => {
+ const addProjectMember = catchAsync(async (req: Request, res: Response) => {
 	const member = await projectMemberService.addProjectMemberInDB(req.body);
 
 	sendResponse(res, {
@@ -16,7 +16,7 @@ export const addProjectMember = catchAsync(async (req: Request, res: Response) =
 	});
 });
 
-export const getAllProjectMembers = catchAsync(async (req: Request, res: Response) => {
+ const getAllProjectMembers = catchAsync(async (req: Request, res: Response) => {
 	const { data, meta } = await projectMemberService.getAllProjectMembersFromDB(req.query as Record<string, unknown>);
 
 	sendResponse(res, {
@@ -28,7 +28,7 @@ export const getAllProjectMembers = catchAsync(async (req: Request, res: Respons
 	});
 });
 
-export const getProjectMemberById = catchAsync(async (req: Request, res: Response) => {
+ const getProjectMemberById = catchAsync(async (req: Request, res: Response) => {
 	const member = await projectMemberService.getProjectMemberByIdFromDB(req.params.id as string);
 
 	sendResponse(res, {
@@ -39,7 +39,7 @@ export const getProjectMemberById = catchAsync(async (req: Request, res: Respons
 	});
 });
 
-export const updateProjectMemberRole = catchAsync(async (req: Request, res: Response) => {
+ const updateProjectMemberRole = catchAsync(async (req: Request, res: Response) => {
 	const member = await projectMemberService.updateProjectMemberRoleInDB(req.params.id as string, req.body.role);
 
 	sendResponse(res, {
@@ -50,7 +50,7 @@ export const updateProjectMemberRole = catchAsync(async (req: Request, res: Resp
 	});
 });
 
-export const removeProjectMember = catchAsync(async (req: Request, res: Response) => {
+ const removeProjectMember = catchAsync(async (req: Request, res: Response) => {
 	await projectMemberService.removeProjectMemberFromDB(req.params.id as string);
 
 	sendResponse(res, {
@@ -60,3 +60,11 @@ export const removeProjectMember = catchAsync(async (req: Request, res: Response
 		data: null,
 	});
 });
+
+export const projectMemberController = {
+	addProjectMember,
+	getAllProjectMembers,
+	getProjectMemberById,
+	updateProjectMemberRole,
+	removeProjectMember,
+};

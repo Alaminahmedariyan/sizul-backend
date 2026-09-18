@@ -12,6 +12,7 @@ const projectStatusEnum = z.enum(["PLANNING", "IN_PROGRESS", "ON_HOLD", "REVIEW"
 
 export const createProjectValidation = z.object({
 	clientId: z.string().min(1).optional(),
+	serviceId: z.string().min(1).optional(),
 	name: z.string().min(1, "Name is required.").max(200),
 	slug: slugField,
 	projectType: projectTypeEnum.default("CLIENT_PROJECT"),
@@ -25,6 +26,7 @@ export const createProjectValidation = z.object({
 export const updateProjectValidation = z
 	.object({
 		clientId: z.string().min(1).nullable().optional(),
+		serviceId: z.string().min(1).nullable().optional(),
 		name: z.string().min(1).max(200).optional(),
 		slug: slugField.optional(),
 		projectType: projectTypeEnum.optional(),

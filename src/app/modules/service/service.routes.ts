@@ -2,8 +2,9 @@ import { Router } from "express";
 
 import { requireAuth, requireRole } from "../../middlewares/requireAuth";
 import { validateRequest } from "../../middlewares/validateRequest";
-import * as serviceController from "./service.controller";
+
 import { createServiceValidation, updateServiceValidation } from "./service.validation";
+import { serviceController } from "./service.controller";
 
 const router = Router();
 

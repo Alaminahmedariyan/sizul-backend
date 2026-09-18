@@ -3,23 +3,23 @@ import { Router } from "express";
 import { requireAuth, requireRole } from "../../middlewares/requireAuth";
 import { validateRequest } from "../../middlewares/validateRequest";
 import { publicRateLimiter } from "../../middlewares/rateLimiters";
-import * as messageController from "./contactMessage.controller";
 import { createContactMessageValidation, updateContactMessageStatusValidation } from "./contactMessage.validation";
+import { contactMessageController } from "./contactMessage.controller";
 
 const router = Router();
 
 // Public — website contact form, rate-limited (no auth, same reasoning as leads)
-router.post("/", publicRateLimiter, validateRequest(createContactMessageValidation), messageController.createContactMessage);
+router.post("/", publicRateLimiter, validateRequest(createContactMessageValidation), contactMessageController.createContactMessage);
 
-router.get("/", requireAuth, requireRole("ADMIN", "STAFF"), messageController.getAllContactMessages);
-router.get("/:id", requireAuth, requireRole("ADMIN", "STAFF"), messageController.getContactMessageById);
+router.get("/", requireAuth, requireRole("ADMIN", "STAFF"), contactMessageController.getAllContactMessages);
+router.get("/:id", requireAuth, requireRole("ADMIN", "STAFF"), contactMessageController.getContactMessageById);
 router.patch(
 	"/:id/status",
 	requireAuth,
 	requireRole("ADMIN", "STAFF"),
 	validateRequest(updateContactMessageStatusValidation),
-	messageController.updateContactMessageStatus,
+	contactMessageController.updateContactMessageStatus,
 );
-router.delete("/:id", requireAuth, requireRole("ADMIN", "STAFF"), messageController.deleteContactMessage);
+router.delete("/:id", requireAuth, requireRole("ADMIN", "STAFF"), contactMessageController.deleteContactMessage);
 
 export const contactMessageRoutes = router;

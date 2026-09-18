@@ -4,8 +4,9 @@ import { requireAuth, requireRole } from "../../middlewares/requireAuth";
 import { validateRequest } from "../../middlewares/validateRequest";
 // ADJUST THIS PATH if your multer middleware file lives somewhere else:
 import { documentUpload } from "../../middlewares/upload";
-import * as projectFileController from "./projectFile.controller";
+
 import { uploadProjectFileValidation } from "./projectFile.validation";
+import { projectFileController } from "./projectFile.controller";
 
 const router = Router();
 

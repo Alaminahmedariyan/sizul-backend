@@ -2,13 +2,14 @@ import { Router } from "express";
 
 import { requireAuth, requireRole } from "../../middlewares/requireAuth";
 import { validateRequest } from "../../middlewares/validateRequest";
-import * as caseStudyController from "./caseStudy.controller";
+
 import {
 	createCaseStudyValidation,
 	linkCaseStudyServiceValidation,
 	updateCaseStudyStatusValidation,
 	updateCaseStudyValidation,
 } from "./caseStudy.validation";
+import { caseStudyController } from "./caseStudy.controller";
 
 const router = Router();
 

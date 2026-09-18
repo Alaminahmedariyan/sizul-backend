@@ -2,13 +2,14 @@ import { Router } from "express";
 
 import { requireAuth, requireRole } from "../../middlewares/requireAuth";
 import { validateRequest } from "../../middlewares/validateRequest";
-import * as clientController from "./client.controller";
+
 import {
 	createClientValidation,
 	updateClientActiveValidation,
 	updateClientValidation,
 	updateMyClientProfileValidation,
 } from "./client.validation";
+import { clientController } from "./client.controller";
 
 const router = Router();
 

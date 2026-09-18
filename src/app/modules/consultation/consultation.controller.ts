@@ -3,9 +3,10 @@ import type { Request, Response } from "express";
 
 import { catchAsync } from "../../utils/catchAsync";
 import { sendResponse } from "../../utils/sendResponse";
-import * as consultationService from "./consultation.service";
+import { consultationService } from "./consultation.service";
 
-export const createConsultation = catchAsync(async (req: Request, res: Response) => {
+
+ const createConsultation = catchAsync(async (req: Request, res: Response) => {
 	const consultation = await consultationService.createConsultationInDB(req.body);
 
 	sendResponse(res, {
@@ -16,7 +17,7 @@ export const createConsultation = catchAsync(async (req: Request, res: Response)
 	});
 });
 
-export const getAllConsultations = catchAsync(async (req: Request, res: Response) => {
+ const getAllConsultations = catchAsync(async (req: Request, res: Response) => {
 	const { data, meta } = await consultationService.getAllConsultationsFromDB(req.query as Record<string, unknown>);
 
 	sendResponse(res, {
@@ -28,7 +29,7 @@ export const getAllConsultations = catchAsync(async (req: Request, res: Response
 	});
 });
 
-export const getConsultationById = catchAsync(async (req: Request, res: Response) => {
+ const getConsultationById = catchAsync(async (req: Request, res: Response) => {
 	const consultation = await consultationService.getConsultationByIdFromDB(req.params.id as string);
 
 	sendResponse(res, {
@@ -39,7 +40,7 @@ export const getConsultationById = catchAsync(async (req: Request, res: Response
 	});
 });
 
-export const updateConsultation = catchAsync(async (req: Request, res: Response) => {
+ const updateConsultation = catchAsync(async (req: Request, res: Response) => {
 	const consultation = await consultationService.updateConsultationInDB(req.params.id as string, req.body);
 
 	sendResponse(res, {
@@ -50,7 +51,7 @@ export const updateConsultation = catchAsync(async (req: Request, res: Response)
 	});
 });
 
-export const updateConsultationStatus = catchAsync(async (req: Request, res: Response) => {
+ const updateConsultationStatus = catchAsync(async (req: Request, res: Response) => {
 	const consultation = await consultationService.updateConsultationStatusInDB(req.params.id as string, req.body.status);
 
 	sendResponse(res, {
@@ -61,7 +62,7 @@ export const updateConsultationStatus = catchAsync(async (req: Request, res: Res
 	});
 });
 
-export const assignConsultation = catchAsync(async (req: Request, res: Response) => {
+ const assignConsultation = catchAsync(async (req: Request, res: Response) => {
 	const consultation = await consultationService.assignConsultationToStaffInDB(req.params.id as string, req.body.staffId);
 
 	sendResponse(res, {
@@ -72,7 +73,7 @@ export const assignConsultation = catchAsync(async (req: Request, res: Response)
 	});
 });
 
-export const deleteConsultation = catchAsync(async (req: Request, res: Response) => {
+ const deleteConsultation = catchAsync(async (req: Request, res: Response) => {
 	await consultationService.deleteConsultationFromDB(req.params.id as string);
 
 	sendResponse(res, {
@@ -82,3 +83,13 @@ export const deleteConsultation = catchAsync(async (req: Request, res: Response)
 		data: null,
 	});
 });
+
+export const consultationController = {
+	createConsultation,
+	getAllConsultations,
+	getConsultationById,
+	updateConsultation,
+	updateConsultationStatus,
+	assignConsultation,
+	deleteConsultation,
+};

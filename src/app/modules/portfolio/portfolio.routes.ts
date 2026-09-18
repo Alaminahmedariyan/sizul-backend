@@ -2,7 +2,7 @@ import { Router } from "express";
 
 import { requireAuth, requireRole } from "../../middlewares/requireAuth";
 import { validateRequest } from "../../middlewares/validateRequest";
-import * as portfolioController from "./portfolio.controller";
+
 import {
 	addPortfolioImageValidation,
 	createPortfolioValidation,
@@ -10,6 +10,7 @@ import {
 	updatePortfolioStatusValidation,
 	updatePortfolioValidation,
 } from "./portfolio.validation";
+import { portfolioController } from "./portfolio.controller";
 
 const router = Router();
 

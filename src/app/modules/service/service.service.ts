@@ -51,11 +51,11 @@ const toPrismaData = <T extends { startingPrice?: number | null; features?: unkn
 	}),
 });
 
-export const createServiceInDB = async (payload: CreateServiceInput) => {
+ const createServiceInDB = async (payload: CreateServiceInput) => {
 	return prisma.service.create({ data: toPrismaData(payload) as Prisma.ServiceUncheckedCreateInput });
 };
 
-export const getAllServicesFromDB = async (query: Record<string, unknown>, { publicOnly }: { publicOnly: boolean }) => {
+ const getAllServicesFromDB = async (query: Record<string, unknown>, { publicOnly }: { publicOnly: boolean }) => {
 	const effectiveQuery: Record<string, unknown> = { ...query };
 
 	if (publicOnly) {
@@ -73,7 +73,7 @@ export const getAllServicesFromDB = async (query: Record<string, unknown>, { pub
 	return queryBuilder.execute(effectiveQuery);
 };
 
-export const getServiceBySlugFromDB = async (slug: string, { publicOnly }: { publicOnly: boolean }) => {
+ const getServiceBySlugFromDB = async (slug: string, { publicOnly }: { publicOnly: boolean }) => {
 	const service = await prisma.service.findUnique({
 		where: { slug },
 		include: {
@@ -91,7 +91,7 @@ export const getServiceBySlugFromDB = async (slug: string, { publicOnly }: { pub
 	return service;
 };
 
-export const getServiceByIdFromDB = async (id: string) => {
+ const getServiceByIdFromDB = async (id: string) => {
 	const service = await prisma.service.findUnique({
 		where: { id },
 		include: { pricingPlans: { orderBy: { order: "asc" } } },
@@ -104,7 +104,7 @@ export const getServiceByIdFromDB = async (id: string) => {
 	return service;
 };
 
-export const updateServiceInDB = async (id: string, payload: UpdateServiceInput) => {
+ const updateServiceInDB = async (id: string, payload: UpdateServiceInput) => {
 	const existing = await prisma.service.findUnique({ where: { id } });
 	if (!existing) {
 		throw new AppError(StatusCodes.NOT_FOUND, "Service not found.");
@@ -113,11 +113,20 @@ export const updateServiceInDB = async (id: string, payload: UpdateServiceInput)
 	return prisma.service.update({ where: { id }, data: toPrismaData(payload) as Prisma.ServiceUncheckedUpdateInput });
 };
 
-export const deleteServiceFromDB = async (id: string) => {
+ const deleteServiceFromDB = async (id: string) => {
 	const existing = await prisma.service.findUnique({ where: { id } });
 	if (!existing) {
 		throw new AppError(StatusCodes.NOT_FOUND, "Service not found.");
 	}
 
 	await prisma.service.delete({ where: { id } });
+};
+
+export const serviceService = {
+	createServiceInDB,
+	getAllServicesFromDB,
+	getServiceBySlugFromDB,
+	getServiceByIdFromDB,
+	updateServiceInDB,
+	deleteServiceFromDB,
 };

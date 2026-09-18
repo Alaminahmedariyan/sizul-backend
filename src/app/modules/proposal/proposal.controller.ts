@@ -3,9 +3,10 @@ import type { Request, Response } from "express";
 
 import { catchAsync } from "../../utils/catchAsync";
 import { sendResponse } from "../../utils/sendResponse";
-import * as proposalService from "./proposal.service";
+import { proposalService } from "./proposal.service";
 
-export const createProposal = catchAsync(async (req: Request, res: Response) => {
+
+ const createProposal = catchAsync(async (req: Request, res: Response) => {
 	const proposal = await proposalService.createProposalInDB(req.body, req.user?.id ?? "");
 
 	sendResponse(res, {
@@ -16,7 +17,7 @@ export const createProposal = catchAsync(async (req: Request, res: Response) => 
 	});
 });
 
-export const getAllProposals = catchAsync(async (req: Request, res: Response) => {
+ const getAllProposals = catchAsync(async (req: Request, res: Response) => {
 	const { data, meta } = await proposalService.getAllProposalsFromDB(req.query as Record<string, unknown>);
 
 	sendResponse(res, {
@@ -28,7 +29,7 @@ export const getAllProposals = catchAsync(async (req: Request, res: Response) =>
 	});
 });
 
-export const getProposalById = catchAsync(async (req: Request, res: Response) => {
+ const getProposalById = catchAsync(async (req: Request, res: Response) => {
 	const proposal = await proposalService.getProposalByIdFromDB(req.params.id as string);
 
 	sendResponse(res, {
@@ -39,7 +40,7 @@ export const getProposalById = catchAsync(async (req: Request, res: Response) =>
 	});
 });
 
-export const updateProposal = catchAsync(async (req: Request, res: Response) => {
+ const updateProposal = catchAsync(async (req: Request, res: Response) => {
 	const proposal = await proposalService.updateProposalInDB(req.params.id as string, req.body);
 
 	sendResponse(res, {
@@ -50,7 +51,7 @@ export const updateProposal = catchAsync(async (req: Request, res: Response) => 
 	});
 });
 
-export const sendProposal = catchAsync(async (req: Request, res: Response) => {
+ const sendProposal = catchAsync(async (req: Request, res: Response) => {
 	const proposal = await proposalService.sendProposalInDB(req.params.id as string);
 
 	sendResponse(res, {
@@ -61,7 +62,7 @@ export const sendProposal = catchAsync(async (req: Request, res: Response) => {
 	});
 });
 
-export const markProposalViewed = catchAsync(async (req: Request, res: Response) => {
+ const markProposalViewed = catchAsync(async (req: Request, res: Response) => {
 	const proposal = await proposalService.markProposalViewedInDB(req.params.id as string);
 
 	sendResponse(res, {
@@ -72,7 +73,7 @@ export const markProposalViewed = catchAsync(async (req: Request, res: Response)
 	});
 });
 
-export const acceptProposal = catchAsync(async (req: Request, res: Response) => {
+ const acceptProposal = catchAsync(async (req: Request, res: Response) => {
 	const proposal = await proposalService.acceptProposalInDB(req.params.id as string);
 
 	sendResponse(res, {
@@ -83,7 +84,7 @@ export const acceptProposal = catchAsync(async (req: Request, res: Response) => 
 	});
 });
 
-export const rejectProposal = catchAsync(async (req: Request, res: Response) => {
+ const rejectProposal = catchAsync(async (req: Request, res: Response) => {
 	const proposal = await proposalService.rejectProposalInDB(req.params.id as string);
 
 	sendResponse(res, {
@@ -94,7 +95,7 @@ export const rejectProposal = catchAsync(async (req: Request, res: Response) => 
 	});
 });
 
-export const deleteProposal = catchAsync(async (req: Request, res: Response) => {
+ const deleteProposal = catchAsync(async (req: Request, res: Response) => {
 	await proposalService.deleteProposalFromDB(req.params.id as string);
 
 	sendResponse(res, {
@@ -104,3 +105,16 @@ export const deleteProposal = catchAsync(async (req: Request, res: Response) => 
 		data: null,
 	});
 });
+
+
+export const proposalController = {
+	createProposal,
+	getAllProposals,
+	getProposalById,
+	updateProposal,
+	sendProposal,
+	markProposalViewed,
+	acceptProposal,
+	rejectProposal,
+	deleteProposal,
+};

@@ -3,7 +3,6 @@ import { Router } from "express";
 import { requireAuth, requireRole } from "../../middlewares/requireAuth";
 import { validateRequest } from "../../middlewares/validateRequest";
 import { publicRateLimiter } from "../../middlewares/rateLimiters";
-import * as leadController from "./lead.controller";
 import {
 	addLeadNoteValidation,
 	assignLeadValidation,
@@ -11,6 +10,7 @@ import {
 	updateLeadStatusValidation,
 	updateLeadValidation,
 } from "./lead.validation";
+import { leadController } from "./lead.controller";
 
 const router = Router();
 

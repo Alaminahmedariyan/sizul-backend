@@ -7,27 +7,8 @@ import { prisma } from "../../../lib/prisma";
 import { Prisma } from "../../../generated/prisma/client";
 import type { Portfolio } from "../../../generated/prisma/client";
 import { portfolioQueryConfig } from "./portfolio.constant";
+import type { ContentStatus, CreatePortfolioInput, UpdatePortfolioInput } from "./portfolio.interface";
 
-type ContentStatus = "DRAFT" | "PUBLISHED" | "ARCHIVED";
-
-type CreatePortfolioInput = {
-	title: string;
-	slug: string;
-	clientName?: string;
-	industry?: string;
-	location?: string;
-	websiteUrl?: string;
-	coverImage?: string;
-	description?: string;
-	technologies?: unknown;
-	duration?: string;
-	results?: unknown;
-	seoTitle?: string;
-	seoDescription?: string;
-	isFeatured: boolean;
-};
-
-type UpdatePortfolioInput = Partial<Omit<CreatePortfolioInput, "isFeatured">> & { isFeatured?: boolean };
 
 const portfolioDelegate = prisma.portfolio as unknown as PrismaDelegate<Portfolio>;
 
@@ -152,4 +133,18 @@ export const unlinkPortfolioServiceFromDB = async (portfolioId: string, serviceI
 export const deletePortfolioFromDB = async (id: string) => {
 	await assertPortfolioExists(id);
 	await prisma.portfolio.delete({ where: { id } });
+};
+
+export const portfolioService = {
+	createPortfolioInDB,
+	getAllPortfoliosFromDB,
+	getPortfolioBySlugFromDB,
+	getPortfolioByIdFromDB,
+	updatePortfolioInDB,
+	updatePortfolioStatusInDB,
+	addPortfolioImageInDB,
+	removePortfolioImageFromDB,
+	linkPortfolioServiceInDB,
+	unlinkPortfolioServiceFromDB,
+	deletePortfolioFromDB,
 };

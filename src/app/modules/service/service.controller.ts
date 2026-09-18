@@ -3,9 +3,10 @@ import type { Request, Response } from "express";
 
 import { catchAsync } from "../../utils/catchAsync";
 import { sendResponse } from "../../utils/sendResponse";
-import * as serviceService from "./service.service";
+import { serviceService } from "./service.service";
 
-export const createService = catchAsync(async (req: Request, res: Response) => {
+
+ const createService = catchAsync(async (req: Request, res: Response) => {
 	const service = await serviceService.createServiceInDB(req.body);
 
 	sendResponse(res, {
@@ -16,7 +17,7 @@ export const createService = catchAsync(async (req: Request, res: Response) => {
 	});
 });
 
-export const getAllServicesPublic = catchAsync(async (req: Request, res: Response) => {
+ const getAllServicesPublic = catchAsync(async (req: Request, res: Response) => {
 	const { data, meta } = await serviceService.getAllServicesFromDB(req.query as Record<string, unknown>, {
 		publicOnly: true,
 	});
@@ -30,7 +31,7 @@ export const getAllServicesPublic = catchAsync(async (req: Request, res: Respons
 	});
 });
 
-export const getAllServicesAdmin = catchAsync(async (req: Request, res: Response) => {
+ const getAllServicesAdmin = catchAsync(async (req: Request, res: Response) => {
 	const { data, meta } = await serviceService.getAllServicesFromDB(req.query as Record<string, unknown>, {
 		publicOnly: false,
 	});
@@ -44,7 +45,7 @@ export const getAllServicesAdmin = catchAsync(async (req: Request, res: Response
 	});
 });
 
-export const getServiceBySlugPublic = catchAsync(async (req: Request, res: Response) => {
+ const getServiceBySlugPublic = catchAsync(async (req: Request, res: Response) => {
 	const service = await serviceService.getServiceBySlugFromDB(req.params.slug as string, { publicOnly: true });
 
 	sendResponse(res, {
@@ -55,7 +56,7 @@ export const getServiceBySlugPublic = catchAsync(async (req: Request, res: Respo
 	});
 });
 
-export const getServiceByIdAdmin = catchAsync(async (req: Request, res: Response) => {
+ const getServiceByIdAdmin = catchAsync(async (req: Request, res: Response) => {
 	const service = await serviceService.getServiceByIdFromDB(req.params.id as string);
 
 	sendResponse(res, {
@@ -66,7 +67,7 @@ export const getServiceByIdAdmin = catchAsync(async (req: Request, res: Response
 	});
 });
 
-export const updateService = catchAsync(async (req: Request, res: Response) => {
+ const updateService = catchAsync(async (req: Request, res: Response) => {
 	const service = await serviceService.updateServiceInDB(req.params.id as string, req.body);
 
 	sendResponse(res, {
@@ -77,7 +78,7 @@ export const updateService = catchAsync(async (req: Request, res: Response) => {
 	});
 });
 
-export const deleteService = catchAsync(async (req: Request, res: Response) => {
+ const deleteService = catchAsync(async (req: Request, res: Response) => {
 	await serviceService.deleteServiceFromDB(req.params.id as string);
 
 	sendResponse(res, {
@@ -87,3 +88,13 @@ export const deleteService = catchAsync(async (req: Request, res: Response) => {
 		data: null,
 	});
 });
+
+export const serviceController = {
+	createService,
+	getAllServicesPublic,
+	getAllServicesAdmin,
+	getServiceBySlugPublic,
+	getServiceByIdAdmin,
+	updateService,
+	deleteService,
+};

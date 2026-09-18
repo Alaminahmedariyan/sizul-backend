@@ -2,8 +2,8 @@ import { Router } from "express";
 
 import { requireAuth, requireRole } from "../../middlewares/requireAuth";
 import { validateRequest } from "../../middlewares/validateRequest";
-import * as testimonialController from "./testimonial.controller";
 import { createTestimonialValidation, updateTestimonialStatusValidation, updateTestimonialValidation } from "./testimonial.validation";
+import { testimonialController } from "./testimonial.controller";
 
 const router = Router();
 

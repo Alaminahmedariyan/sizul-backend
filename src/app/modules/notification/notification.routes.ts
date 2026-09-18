@@ -2,8 +2,8 @@ import { Router } from "express";
 
 import { requireAuth, requireRole } from "../../middlewares/requireAuth";
 import { validateRequest } from "../../middlewares/validateRequest";
-import * as notificationController from "./notification.controller";
 import { createNotificationValidation } from "./notification.validation";
+import { notificationController } from "./notification.controller";
 
 const router = Router();
 
