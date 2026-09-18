@@ -39,7 +39,7 @@ const assertLeadExists = async (id: string) => {
 	return lead;
 };
 
-export const createLeadInDB = async (payload: CreateLeadInput) => {
+ const createLeadInDB = async (payload: CreateLeadInput) => {
 	if (payload.serviceId) {
 		const service = await prisma.service.findUnique({ where: { id: payload.serviceId } });
 		if (!service) {
@@ -65,12 +65,12 @@ export const createLeadInDB = async (payload: CreateLeadInput) => {
 	return lead;
 };
 
-export const getAllLeadsFromDB = async (query: Record<string, unknown>) => {
+ const getAllLeadsFromDB = async (query: Record<string, unknown>) => {
 	const queryBuilder = new QueryBuilder<Lead>(leadDelegate, leadQueryConfig);
 	return queryBuilder.execute(query);
 };
 
-export const getLeadByIdFromDB = async (id: string) => {
+ const getLeadByIdFromDB = async (id: string) => {
 	const lead = await prisma.lead.findUnique({
 		where: { id },
 		include: {
@@ -91,7 +91,7 @@ export const getLeadByIdFromDB = async (id: string) => {
 	return lead;
 };
 
-export const updateLeadInDB = async (id: string, payload: UpdateLeadInput, actorId?: string) => {
+ const updateLeadInDB = async (id: string, payload: UpdateLeadInput, actorId?: string) => {
 	await assertLeadExists(id);
 
 	if (payload.serviceId) {
@@ -106,7 +106,7 @@ export const updateLeadInDB = async (id: string, payload: UpdateLeadInput, actor
 	return updated;
 };
 
-export const updateLeadStatusInDB = async (id: string, status: LeadStatus, actorId?: string) => {
+ const updateLeadStatusInDB = async (id: string, status: LeadStatus, actorId?: string) => {
 	const existing = await assertLeadExists(id);
 
 	const updated = await prisma.lead.update({ where: { id }, data: { status } });
@@ -133,7 +133,7 @@ export const updateLeadStatusInDB = async (id: string, status: LeadStatus, actor
 	return updated;
 };
 
-export const assignLeadToStaffInDB = async (id: string, staffId: string | null, actorId?: string) => {
+ const assignLeadToStaffInDB = async (id: string, staffId: string | null, actorId?: string) => {
 	const lead = await assertLeadExists(id);
 
 	let staff: { id: string; userId: string | null } | null = null;
@@ -170,7 +170,7 @@ export const assignLeadToStaffInDB = async (id: string, staffId: string | null, 
 	return updated;
 };
 
-export const addLeadNoteInDB = async (leadId: string, content: string, actorId?: string) => {
+ const addLeadNoteInDB = async (leadId: string, content: string, actorId?: string) => {
 	await assertLeadExists(leadId);
 
 	const note = await prisma.leadNote.create({ data: { leadId, content } });
@@ -178,12 +178,12 @@ export const addLeadNoteInDB = async (leadId: string, content: string, actorId?:
 	return note;
 };
 
-export const getLeadNotesFromDB = async (leadId: string) => {
+ const getLeadNotesFromDB = async (leadId: string) => {
 	await assertLeadExists(leadId);
 	return prisma.leadNote.findMany({ where: { leadId }, orderBy: { createdAt: "desc" } });
 };
 
-export const getLeadActivitiesFromDB = async (leadId: string) => {
+ const getLeadActivitiesFromDB = async (leadId: string) => {
 	await assertLeadExists(leadId);
 	return prisma.leadActivity.findMany({
 		where: { leadId },
@@ -192,7 +192,7 @@ export const getLeadActivitiesFromDB = async (leadId: string) => {
 	});
 };
 
-export const convertLeadToClientInDB = async (id: string, actorId?: string) => {
+ const convertLeadToClientInDB = async (id: string, actorId?: string) => {
 	const lead = await assertLeadExists(id);
 
 	if (lead.clientId) {
@@ -239,7 +239,21 @@ export const convertLeadToClientInDB = async (id: string, actorId?: string) => {
 	return { lead: updatedLead, client };
 };
 
-export const deleteLeadFromDB = async (id: string) => {
+ const deleteLeadFromDB = async (id: string) => {
 	await assertLeadExists(id);
 	await prisma.lead.delete({ where: { id } });
 };
+
+ export const leadService = {
+	createLeadInDB,
+	getAllLeadsFromDB ,	
+	getLeadByIdFromDB ,
+	updateLeadInDB ,
+	updateLeadStatusInDB ,
+	assignLeadToStaffInDB ,
+	addLeadNoteInDB ,
+	getLeadNotesFromDB ,
+	getLeadActivitiesFromDB ,
+	convertLeadToClientInDB ,
+	deleteLeadFromDB 
+}

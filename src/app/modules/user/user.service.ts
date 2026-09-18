@@ -7,10 +7,7 @@ import { prisma } from "../../../lib/prisma";
 import { Prisma } from "../../../generated/prisma/client";
 import type { User } from "../../../generated/prisma/client";
 import { userQueryConfig } from "./user.constant";
-
-type UpdateUserRoleInput = "ADMIN" | "STAFF" | "CLIENT";
-type UpdateUserStatusInput = "ACTIVE" | "INACTIVE" | "SUSPENDED";
-type UpdateMyProfileInput = { name?: string; image?: string };
+import type { UpdateUserRoleInput, UpdateUserStatusInput, UpdateMyProfileInput } from "./user.interface";
 
 const omitPassword = (user: User) => {
   const { passwordHash: _passwordHash, ...rest } = user;

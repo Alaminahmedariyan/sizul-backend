@@ -54,7 +54,7 @@ const setPostTags = async (postId: string, tagIds: string[]) => {
 	}
 };
 
-export const createBlogPostInDB = async (payload: CreatePostInput, authorId?: string) => {
+const createBlogPostInDB = async (payload: CreatePostInput, authorId?: string) => {
 	if (payload.categoryId) {
 		await assertCategoryExists(payload.categoryId);
 	}
@@ -117,7 +117,7 @@ export const getBlogPostByIdFromDB = async (id: string) => {
 	return post;
 };
 
-export const updateBlogPostInDB = async (id: string, payload: UpdatePostInput) => {
+const updateBlogPostInDB = async (id: string, payload: UpdatePostInput) => {
 	await assertPostExists(id);
 
 	if (payload.categoryId) {
@@ -138,7 +138,7 @@ export const updateBlogPostInDB = async (id: string, payload: UpdatePostInput) =
 	return updated;
 };
 
-export const updateBlogPostStatusInDB = async (id: string, status: ContentStatus) => {
+const updateBlogPostStatusInDB = async (id: string, status: ContentStatus) => {
 	const existing = await assertPostExists(id);
 
 	const publishedAt = status === "PUBLISHED" && !existing.publishedAt ? new Date() : existing.publishedAt;

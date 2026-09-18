@@ -6,35 +6,7 @@ import type { PrismaDelegate } from "../../queryBuilder";
 import { prisma } from "../../../lib/prisma";
 import type { Staff } from "../../../generated/prisma/client";
 import { staffQueryConfig } from "./staff.constant";
-
-type CreateStaffInput = {
-	userId?: string;
-	employeeId?: string;
-	fullName: string;
-	email: string;
-	phone?: string;
-	role?: "OWNER" | "MANAGER" | "DEVELOPER" | "DESIGNER" | "MARKETING" | "SALES" | "SUPPORT";
-	designation?: string;
-	department?: string;
-	bio?: string;
-	avatar?: string;
-	hireDate?: Date;
-};
-
-type UpdateStaffInput = {
-	userId?: string | null;
-	employeeId?: string | null;
-	fullName?: string;
-	email?: string;
-	phone?: string | null;
-	role?: "OWNER" | "MANAGER" | "DEVELOPER" | "DESIGNER" | "MARKETING" | "SALES" | "SUPPORT";
-	designation?: string | null;
-	department?: string | null;
-	bio?: string | null;
-	avatar?: string | null;
-	hireDate?: Date | null;
-};
-type StaffStatusInput = "ACTIVE" | "INACTIVE" | "ON_LEAVE" | "TERMINATED";
+import type { CreateStaffInput, UpdateStaffInput, StaffStatusInput } from "./staff.interface";
 
 const staffDelegate = prisma.staff as unknown as PrismaDelegate<Staff>;
 

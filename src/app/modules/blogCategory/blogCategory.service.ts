@@ -7,7 +7,7 @@ import { prisma } from "../../../lib/prisma";
 import { Prisma } from "../../../generated/prisma/client";
 import type { BlogCategory } from "../../../generated/prisma/client";
 import { blogCategoryQueryConfig } from "./blogCategory.constant";
-import type { CreateInput, UpdateInput } from "./blagCategory.interface";
+import type { CreateInput, UpdateInput } from "./blogCategory.interface";
 
 const categoryDelegate =
   prisma.blogCategory as unknown as PrismaDelegate<BlogCategory>;
@@ -20,7 +20,7 @@ const assertExists = async (id: string) => {
   return category;
 };
 
-export const createBlogCategoryInDB = async (payload: CreateInput) =>
+const createBlogCategoryInDB = async (payload: CreateInput) =>
   prisma.blogCategory.create({
     data: payload as Prisma.BlogCategoryUncheckedCreateInput,
   });
@@ -43,7 +43,7 @@ export const getAllBlogCategoriesFromDB = async (
 
 export const getBlogCategoryByIdFromDB = async (id: string) => assertExists(id);
 
-export const updateBlogCategoryInDB = async (
+const updateBlogCategoryInDB = async (
   id: string,
   payload: UpdateInput,
 ) => {

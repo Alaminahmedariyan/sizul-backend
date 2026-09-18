@@ -37,7 +37,7 @@ export const notifyAdmins = async (payload: {
 	await Promise.all(admins.map((admin) => createNotification({ ...payload, userId: admin.id })));
 };
 
-export const createNotificationInDB = async (payload: {
+const createNotificationInDB = async (payload: {
 	userId: string;
 	type: NotificationType;
 	entityType?: NotificationEntityType;
@@ -69,12 +69,12 @@ const assertOwnedNotification = async (id: string, userId: string) => {
 	return notification;
 };
 
-export const markNotificationReadInDB = async (id: string, userId: string) => {
+const markNotificationReadInDB = async (id: string, userId: string) => {
 	await assertOwnedNotification(id, userId);
 	return prisma.notification.update({ where: { id }, data: { isRead: true, readAt: new Date() } });
 };
 
-export const markAllNotificationsReadInDB = async (userId: string) => {
+const markAllNotificationsReadInDB = async (userId: string) => {
 	await prisma.notification.updateMany({
 		where: { userId, isRead: false },
 		data: { isRead: true, readAt: new Date() },

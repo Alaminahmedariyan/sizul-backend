@@ -21,7 +21,7 @@ const getClientIdForUser = async (userId: string) => {
 	return client.id;
 };
 
-export const createMyClientReviewInDB = async (userId: string, payload: CreateReviewInput) => {
+const createMyClientReviewInDB = async (userId: string, payload: CreateReviewInput) => {
 	const clientId = await getClientIdForUser(userId);
 
 	// A review tied to a project must actually be one of this client's own projects.
@@ -70,7 +70,7 @@ export const getClientReviewByIdFromDB = async (id: string) => {
 	return review;
 };
 
-export const updateReviewApprovalInDB = async (id: string, isApproved: boolean) => {
+const updateReviewApprovalInDB = async (id: string, isApproved: boolean) => {
 	const existing = await prisma.clientReview.findUnique({ where: { id } });
 	if (!existing) {
 		throw new AppError(StatusCodes.NOT_FOUND, "Review not found.");
@@ -78,7 +78,7 @@ export const updateReviewApprovalInDB = async (id: string, isApproved: boolean) 
 	return prisma.clientReview.update({ where: { id }, data: { isApproved } });
 };
 
-export const updateReviewFeaturedInDB = async (id: string, isFeatured: boolean) => {
+const updateReviewFeaturedInDB = async (id: string, isFeatured: boolean) => {
 	const existing = await prisma.clientReview.findUnique({ where: { id } });
 	if (!existing) {
 		throw new AppError(StatusCodes.NOT_FOUND, "Review not found.");

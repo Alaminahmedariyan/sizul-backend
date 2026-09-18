@@ -7,32 +7,7 @@ import { prisma } from "../../../lib/prisma";
 import { Prisma } from "../../../generated/prisma/client";
 import type { Service } from "../../../generated/prisma/client";
 import { serviceQueryConfig } from "./service.constant";
-
-type CreateServiceInput = {
-	slug: string;
-	name: string;
-	shortName?: string;
-	tagline?: string;
-	description?: string;
-	icon?: string;
-	coverImage?: string;
-	features?: unknown;
-	process?: unknown;
-	startingPrice?: number;
-	currency: string;
-	isActive: boolean;
-	isFeatured: boolean;
-	order: number;
-	seoTitle?: string;
-	seoDescription?: string;
-};
-
-type UpdateServiceInput = Partial<Omit<CreateServiceInput, "currency" | "isActive" | "isFeatured" | "order">> & {
-	currency?: string;
-	isActive?: boolean;
-	isFeatured?: boolean;
-	order?: number;
-};
+import type { CreateServiceInput, UpdateServiceInput } from "./service.interface";
 
 const serviceDelegate = prisma.service as unknown as PrismaDelegate<Service>;
 

@@ -5,9 +5,9 @@ import type Stripe from "stripe";
 import config from "../../config";
 import { getStripe } from "../../../lib/stripe";
 import { catchAsync } from "../../utils/catchAsync";
-import { markPaymentFailedByProviderIdInDB, markPaymentSucceededByProviderIdInDB } from "../payment/payment.service";
+import { paymentService } from "../payment/payment.service";
 
- const handleStripeWebhook = catchAsync(async (req: Request, res: Response) => {
+const handleStripeWebhook = catchAsync(async (req: Request, res: Response) => {
 	const signature = req.headers["stripe-signature"];
 
 	if (!config.stripe.webhookSecret || !signature) {
@@ -31,12 +31,12 @@ import { markPaymentFailedByProviderIdInDB, markPaymentSucceededByProviderIdInDB
 	switch (event.type) {
 		case "checkout.session.completed": {
 			const session = event.data.object as Stripe.Checkout.Session;
-			await markPaymentSucceededByProviderIdInDB(session.id);
+			await paymentService.markPaymentSucceededByProviderIdInDB(session.id);
 			break;
 		}
 		case "checkout.session.expired": {
 			const session = event.data.object as Stripe.Checkout.Session;
-			await markPaymentFailedByProviderIdInDB(session.id, "Checkout session expired.");
+			await paymentService.markPaymentFailedByProviderIdInDB(session.id, "Checkout session expired.");
 			break;
 		}
 		case "payment_intent.payment_failed": {

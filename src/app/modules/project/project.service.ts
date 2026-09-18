@@ -41,7 +41,7 @@ const toPrismaData = <T extends { budget?: number | null }>(payload: T) => ({
   }),
 });
 
-export const createProjectInDB = async (payload: CreateProjectInput) => {
+const createProjectInDB = async (payload: CreateProjectInput) => {
   if (payload.clientId) {
     await assertClientExists(payload.clientId);
   }
@@ -78,7 +78,7 @@ export const getProjectByIdFromDB = async (id: string) => {
   return project;
 };
 
-export const updateProjectInDB = async (
+const updateProjectInDB = async (
   id: string,
   payload: UpdateProjectInput,
 ) => {
@@ -94,7 +94,7 @@ export const updateProjectInDB = async (
   });
 };
 
-export const updateProjectStatusInDB = async (
+const updateProjectStatusInDB = async (
   id: string,
   status: ProjectStatus,
 ) => {
@@ -115,7 +115,7 @@ export const updateProjectStatusInDB = async (
   });
 };
 
-export const updateProjectProgressInDB = async (
+const updateProjectProgressInDB = async (
   id: string,
   progress: number,
 ) => {

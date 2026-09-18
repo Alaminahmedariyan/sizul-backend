@@ -20,7 +20,7 @@ const assertFaqExists = async (id: string) => {
 	return faq;
 };
 
-export const createFaqInDB = async (payload: CreateFaqInput) => {
+const createFaqInDB = async (payload: CreateFaqInput) => {
 	return prisma.fAQ.create({ data: payload as Prisma.FAQUncheckedCreateInput });
 };
 
@@ -42,7 +42,7 @@ export const getFaqByIdFromDB = async (id: string) => {
 	return assertFaqExists(id);
 };
 
-export const updateFaqInDB = async (id: string, payload: UpdateFaqInput) => {
+const updateFaqInDB = async (id: string, payload: UpdateFaqInput) => {
 	await assertFaqExists(id);
 	return prisma.fAQ.update({ where: { id }, data: payload as Prisma.FAQUncheckedUpdateInput });
 };

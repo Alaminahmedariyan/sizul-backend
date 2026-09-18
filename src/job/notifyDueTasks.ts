@@ -1,6 +1,6 @@
 import "dotenv/config";
 
-import { notifyDueTasksInDB } from "../app/modules/projectTask/projectTask.service";
+import { projectTaskService } from "../app/modules/projectTask/projectTask.service";
 import { prisma } from "../lib/prisma";
 
 // Standalone script — run this on a schedule (cron, Vercel Cron, a hosting
@@ -8,7 +8,7 @@ import { prisma } from "../lib/prisma";
 // scheduler inside the app itself). Example crontab entry (twice a day):
 //   0 9,18 * * *  cd /path/to/project && npm run notify:due-tasks
 async function main() {
-	const result = await notifyDueTasksInDB();
+	const result = await projectTaskService.notifyDueTasksInDB();
 	console.log(`[notifyDueTasks] Checked ${result.checked} due-soon task(s), sent ${result.notified} notification(s).`);
 }
 

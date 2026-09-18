@@ -7,21 +7,7 @@ import { prisma } from "../../../lib/prisma";
 import { Prisma } from "../../../generated/prisma/client";
 import type { Testimonial } from "../../../generated/prisma/client";
 import { testimonialQueryConfig } from "./testimonial.constant";
-
-type ContentStatus = "DRAFT" | "PUBLISHED" | "ARCHIVED";
-
-type CreateTestimonialInput = {
-	clientName: string;
-	clientRole?: string;
-	companyName?: string;
-	clientImage?: string;
-	content: string;
-	rating: number;
-	serviceName?: string;
-	isFeatured: boolean;
-};
-
-type UpdateTestimonialInput = Partial<Omit<CreateTestimonialInput, "isFeatured">> & { isFeatured?: boolean };
+import type { ContentStatus, CreateTestimonialInput, UpdateTestimonialInput } from "./testimonial.interface";
 
 const testimonialDelegate = prisma.testimonial as unknown as PrismaDelegate<Testimonial>;
 

@@ -2,8 +2,9 @@ import { StatusCodes } from "http-status-codes";
 
 import AppError from "../../errors/appError";
 import { prisma } from "../../../lib/prisma";
+import type { UpsertSiteSettingInput } from "./siteSetting.interface";
 
- const upsertSiteSettingInDB = async (payload: { key: string; value?: string; description?: string }) => {
+const upsertSiteSettingInDB = async (payload: UpsertSiteSettingInput) => {
 	return prisma.siteSetting.upsert({
 		where: { key: payload.key },
 		create: payload,

@@ -8,36 +8,7 @@ import { Prisma } from "../../../generated/prisma/client";
 import type { Proposal } from "../../../generated/prisma/client";
 import { proposalQueryConfig } from "./proposal.constant";
 import { createNotification } from "../notification/notification.service";
-
-type ProposalItemInput = {
-	serviceId?: string;
-	pricingPlanId?: string;
-	title: string;
-	description?: string;
-	quantity: number;
-	unitPrice: number;
-};
-
-type CreateProposalInput = {
-	leadId?: string;
-	clientId?: string;
-	projectId?: string;
-	title: string;
-	introduction?: string;
-	terms?: string;
-	notes?: string;
-	discount: number;
-	tax: number;
-	currency: string;
-	validUntil?: Date;
-	items: ProposalItemInput[];
-};
-
-type UpdateProposalInput = Partial<Omit<CreateProposalInput, "discount" | "tax" | "currency">> & {
-	discount?: number;
-	tax?: number;
-	currency?: string;
-};
+import type { ProposalItemInput, CreateProposalInput, UpdateProposalInput } from "./proposal.interface";
 
 const proposalDelegate = prisma.proposal as unknown as PrismaDelegate<Proposal>;
 

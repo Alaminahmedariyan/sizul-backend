@@ -8,28 +8,7 @@ import { Prisma } from "../../../generated/prisma/client";
 import type { ProjectTask } from "../../../generated/prisma/client";
 import { projectTaskQueryConfig } from "./projectTask.constant";
 import { createNotification } from "../notification/notification.service";
-
-type TaskStatus = "TODO" | "IN_PROGRESS" | "IN_REVIEW" | "BLOCKED" | "COMPLETED" | "CANCELLED";
-type TaskPriority = "LOW" | "MEDIUM" | "HIGH" | "URGENT";
-
-type CreateTaskInput = {
-	projectId: string;
-	milestoneId?: string;
-	assignedStaffId?: string;
-	title: string;
-	description?: string;
-	priority: TaskPriority;
-	dueDate?: Date;
-};
-
-type UpdateTaskInput = {
-	milestoneId?: string | null;
-	assignedStaffId?: string | null;
-	title?: string;
-	description?: string | null;
-	priority?: TaskPriority;
-	dueDate?: Date | null;
-};
+import type { TaskStatus, TaskPriority, CreateTaskInput, UpdateTaskInput } from "./projectTask.interface";
 
 const taskDelegate = prisma.projectTask as unknown as PrismaDelegate<ProjectTask>;
 

@@ -35,7 +35,7 @@ const assertConsultationExists = async (id: string) => {
 	return consultation;
 };
 
-export const createConsultationInDB = async (payload: CreateConsultationInput) => {
+const createConsultationInDB = async (payload: CreateConsultationInput) => {
 	await assertLeadExists(payload.leadId);
 	if (payload.serviceId) {
 		await assertServiceExists(payload.serviceId);
@@ -72,7 +72,7 @@ export const getConsultationByIdFromDB = async (id: string) => {
 	return consultation;
 };
 
-export const updateConsultationInDB = async (id: string, payload: UpdateConsultationInput) => {
+const updateConsultationInDB = async (id: string, payload: UpdateConsultationInput) => {
 	await assertConsultationExists(id);
 
 	if (payload.serviceId) {
@@ -82,12 +82,12 @@ export const updateConsultationInDB = async (id: string, payload: UpdateConsulta
 	return prisma.consultation.update({ where: { id }, data: payload as Prisma.ConsultationUncheckedUpdateInput });
 };
 
-export const updateConsultationStatusInDB = async (id: string, status: ConsultationStatus) => {
+const updateConsultationStatusInDB = async (id: string, status: ConsultationStatus) => {
 	await assertConsultationExists(id);
 	return prisma.consultation.update({ where: { id }, data: { status } });
 };
 
-export const assignConsultationToStaffInDB = async (id: string, staffId: string | null) => {
+const assignConsultationToStaffInDB = async (id: string, staffId: string | null) => {
 	await assertConsultationExists(id);
 
 	let staff: { id: string; userId: string | null } | null = null;

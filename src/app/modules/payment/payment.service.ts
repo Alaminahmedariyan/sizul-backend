@@ -70,7 +70,7 @@ const notifyProposalCreatorOfPayment = async (proposalId: string, providerLabel:
 // STRIPE
 // ============================================================
 
-export const createStripeCheckoutInDB = async (proposalId: string, requestedBy: RequestingUser) => {
+const createStripeCheckoutInDB = async (proposalId: string, requestedBy: RequestingUser) => {
 	const proposal = await assertCanPayForProposal(proposalId, requestedBy);
 
 	const clientUrl = primaryClientUrl();
@@ -113,7 +113,7 @@ export const createStripeCheckoutInDB = async (proposalId: string, requestedBy: 
 };
 
 // Called from the Stripe webhook handler only.
-export const markPaymentSucceededByProviderIdInDB = async (providerPaymentId: string) => {
+const markPaymentSucceededByProviderIdInDB = async (providerPaymentId: string) => {
 	const payment = await prisma.payment.findUnique({ where: { providerPaymentId } });
 	if (!payment) {
 		console.warn(`[Payment] No payment record found for providerPaymentId ${providerPaymentId}`);
@@ -130,7 +130,7 @@ export const markPaymentSucceededByProviderIdInDB = async (providerPaymentId: st
 	return updated;
 };
 
-export const markPaymentFailedByProviderIdInDB = async (providerPaymentId: string, reason?: string) => {
+const markPaymentFailedByProviderIdInDB = async (providerPaymentId: string, reason?: string) => {
 	const payment = await prisma.payment.findUnique({ where: { providerPaymentId } });
 	if (!payment) {
 		console.warn(`[Payment] No payment record found for providerPaymentId ${providerPaymentId}`);
@@ -149,7 +149,7 @@ export const markPaymentFailedByProviderIdInDB = async (providerPaymentId: strin
 // bKash's Tokenized Checkout only settles in BDT — proposals in any other
 // currency are rejected here rather than silently charged at a 1:1 rate.
 
-export const createBkashPaymentInDB = async (proposalId: string, requestedBy: RequestingUser) => {
+const createBkashPaymentInDB = async (proposalId: string, requestedBy: RequestingUser) => {
 	const proposal = await assertCanPayForProposal(proposalId, requestedBy);
 
 	if (proposal.currency !== "BDT") {
@@ -209,7 +209,7 @@ export const createBkashPaymentInDB = async (proposalId: string, requestedBy: Re
 // ?paymentID=...&status=... in the query string — this is NOT a signed webhook
 // like Stripe's, so we re-verify by calling bKash's own execute endpoint
 // rather than trusting the redirect status alone.
-export const handleBkashCallbackInDB = async (paymentID: string, redirectStatus: string) => {
+const handleBkashCallbackInDB = async (paymentID: string, redirectStatus: string) => {
 	const payment = await prisma.payment.findUnique({ where: { providerPaymentId: paymentID } });
 	if (!payment) {
 		throw new AppError(StatusCodes.NOT_FOUND, "Payment record not found for this bKash paymentID.");
@@ -267,7 +267,7 @@ export const handleBkashCallbackInDB = async (paymentID: string, redirectStatus:
 // ============================================================
 // Same BDT-only reasoning as bKash.
 
-export const createSslcommerzPaymentInDB = async (proposalId: string, requestedBy: RequestingUser) => {
+const createSslcommerzPaymentInDB = async (proposalId: string, requestedBy: RequestingUser) => {
 	const proposal = await assertCanPayForProposal(proposalId, requestedBy);
 
 	if (proposal.currency !== "BDT") {
@@ -324,7 +324,7 @@ export const createSslcommerzPaymentInDB = async (proposalId: string, requestedB
 	return { paymentUrl: apiResponse.GatewayPageURL, payment };
 };
 
-export const handleSslcommerzCallbackInDB = async (tranId: string, status: string, valId?: string) => {
+const handleSslcommerzCallbackInDB = async (tranId: string, status: string, valId?: string) => {
 	const payment = await prisma.payment.findUnique({ where: { providerPaymentId: tranId } });
 	if (!payment) {
 		throw new AppError(StatusCodes.NOT_FOUND, "Payment record not found for this transaction ID.");
@@ -387,7 +387,7 @@ export const getMyPaymentsFromDB = async (userId: string, query: Record<string, 
 // REFUND (Stripe only, for now)
 // ============================================================
 
-export const refundStripePaymentInDB = async (id: string) => {
+const refundStripePaymentInDB = async (id: string) => {
 	const payment = await prisma.payment.findUnique({ where: { id } });
 	if (!payment) {
 		throw new AppError(StatusCodes.NOT_FOUND, "Payment not found.");

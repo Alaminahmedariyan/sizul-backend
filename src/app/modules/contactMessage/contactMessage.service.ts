@@ -21,7 +21,7 @@ const assertExists = async (id: string) => {
   return message;
 };
 
-export const createContactMessageInDB = async (payload: {
+const createContactMessageInDB = async (payload: {
   name: string;
   email: string;
   phone?: string;
@@ -72,7 +72,7 @@ export const getContactMessageByIdFromDB = async (id: string) => {
   return message;
 };
 
-export const updateContactMessageStatusInDB = async (
+const updateContactMessageStatusInDB = async (
   id: string,
   status: ContactMessageStatus,
 ) => {

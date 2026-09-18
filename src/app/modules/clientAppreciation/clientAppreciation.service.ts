@@ -39,7 +39,7 @@ const assertAppreciationExists = async (id: string) => {
 	return appreciation;
 };
 
-export const createAppreciationInDB = async (payload: CreateAppreciationInput) => {
+const createAppreciationInDB = async (payload: CreateAppreciationInput) => {
 	await assertClientExists(payload.clientId);
 	if (payload.projectId) {
 		await assertProjectExists(payload.projectId);
@@ -66,7 +66,7 @@ export const getAppreciationByIdFromDB = async (id: string) => {
 	return appreciation;
 };
 
-export const updateAppreciationInDB = async (id: string, payload: UpdateAppreciationInput) => {
+const updateAppreciationInDB = async (id: string, payload: UpdateAppreciationInput) => {
 	await assertAppreciationExists(id);
 
 	if (payload.projectId) {

@@ -7,25 +7,7 @@ import { prisma } from "../../../lib/prisma";
 import { Prisma } from "../../../generated/prisma/client";
 import type { ProjectMilestone } from "../../../generated/prisma/client";
 import { projectMilestoneQueryConfig } from "./projectMilestone.constant";
-
-type MilestoneStatus = "PENDING" | "IN_PROGRESS" | "COMPLETED" | "BLOCKED";
-
-type CreateMilestoneInput = {
-	projectId: string;
-	title: string;
-	description?: string;
-	startDate?: Date;
-	dueDate?: Date;
-	order: number;
-};
-
-type UpdateMilestoneInput = {
-	title?: string;
-	description?: string | null;
-	startDate?: Date | null;
-	dueDate?: Date | null;
-	order?: number;
-};
+import type { MilestoneStatus, CreateMilestoneInput, UpdateMilestoneInput } from "./projectMilestone.interface";
 
 const milestoneDelegate = prisma.projectMilestone as unknown as PrismaDelegate<ProjectMilestone>;
 

@@ -34,7 +34,7 @@ const assertProjectExists = async (projectId: string) => {
 	}
 };
 
-export const uploadProjectFileInDB = async (
+const uploadProjectFileInDB = async (
 	projectId: string,
 	file: Express.Multer.File,
 	description?: string,

@@ -30,7 +30,7 @@ const assertPortfolioExists = async (id: string) => {
 	return portfolio;
 };
 
-export const createPortfolioInDB = async (payload: CreatePortfolioInput) => {
+const createPortfolioInDB = async (payload: CreatePortfolioInput) => {
 	return prisma.portfolio.create({ data: toPrismaData(payload) as Prisma.PortfolioUncheckedCreateInput });
 };
 
@@ -70,12 +70,12 @@ export const getPortfolioByIdFromDB = async (id: string) => {
 	return portfolio;
 };
 
-export const updatePortfolioInDB = async (id: string, payload: UpdatePortfolioInput) => {
+const updatePortfolioInDB = async (id: string, payload: UpdatePortfolioInput) => {
 	await assertPortfolioExists(id);
 	return prisma.portfolio.update({ where: { id }, data: toPrismaData(payload) as Prisma.PortfolioUncheckedUpdateInput });
 };
 
-export const updatePortfolioStatusInDB = async (id: string, status: ContentStatus) => {
+const updatePortfolioStatusInDB = async (id: string, status: ContentStatus) => {
 	const existing = await assertPortfolioExists(id);
 
 	// Preserve the first-published date even if later moved to DRAFT/ARCHIVED and
@@ -85,7 +85,7 @@ export const updatePortfolioStatusInDB = async (id: string, status: ContentStatu
 	return prisma.portfolio.update({ where: { id }, data: { status, publishedAt } });
 };
 
-export const addPortfolioImageInDB = async (
+const addPortfolioImageInDB = async (
 	portfolioId: string,
 	payload: { url: string; altText?: string; caption?: string; order: number },
 ) => {
@@ -101,7 +101,7 @@ export const removePortfolioImageFromDB = async (imageId: string) => {
 	await prisma.portfolioImage.delete({ where: { id: imageId } });
 };
 
-export const linkPortfolioServiceInDB = async (portfolioId: string, serviceId: string) => {
+const linkPortfolioServiceInDB = async (portfolioId: string, serviceId: string) => {
 	await assertPortfolioExists(portfolioId);
 
 	const service = await prisma.service.findUnique({ where: { id: serviceId } });

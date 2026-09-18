@@ -7,6 +7,7 @@ import { prisma } from "../../../lib/prisma";
 import { Prisma } from "../../../generated/prisma/client";
 import type { BlogTag } from "../../../generated/prisma/client";
 import { blogTagQueryConfig } from "./blogTag.constant";
+import type { CreateBlogTagInput, UpdateBlogTagInput } from "./blogTag.interface";
 
 const tagDelegate = prisma.blogTag as unknown as PrismaDelegate<BlogTag>;
 
@@ -18,16 +19,17 @@ const assertExists = async (id: string) => {
 	return tag;
 };
 
- const createBlogTagInDB = async (payload: { name: string; slug: string }) => prisma.blogTag.create({ data: payload as Prisma.BlogTagUncheckedCreateInput });
+const createBlogTagInDB = async (payload: CreateBlogTagInput) =>
+	prisma.blogTag.create({ data: payload as Prisma.BlogTagUncheckedCreateInput });
 
- const getAllBlogTagsFromDB = async (query: Record<string, unknown>) => {
+const getAllBlogTagsFromDB = async (query: Record<string, unknown>) => {
 	const queryBuilder = new QueryBuilder<BlogTag>(tagDelegate, blogTagQueryConfig);
 	return queryBuilder.execute(query);
 };
 
- const getBlogTagByIdFromDB = async (id: string) => assertExists(id);
+const getBlogTagByIdFromDB = async (id: string) => assertExists(id);
 
- const updateBlogTagInDB = async (id: string, payload: { name?: string; slug?: string }) => {
+const updateBlogTagInDB = async (id: string, payload: UpdateBlogTagInput) => {
 	await assertExists(id);
 	return prisma.blogTag.update({ where: { id }, data: payload as Prisma.BlogTagUncheckedUpdateInput });
 };

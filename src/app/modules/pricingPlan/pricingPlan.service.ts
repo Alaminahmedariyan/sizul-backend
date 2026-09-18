@@ -27,7 +27,7 @@ const toPrismaData = <T extends { price?: number; features?: unknown }>(payload:
 	}),
 });
 
-export const createPricingPlanInDB = async (payload: CreatePricingPlanInput) => {
+const createPricingPlanInDB = async (payload: CreatePricingPlanInput) => {
 	await assertServiceExists(payload.serviceId);
 	return prisma.pricingPlan.create({ data: toPrismaData(payload) as Prisma.PricingPlanUncheckedCreateInput });
 };
@@ -55,7 +55,7 @@ export const getPricingPlanByIdFromDB = async (id: string) => {
 	return plan;
 };
 
-export const updatePricingPlanInDB = async (id: string, payload: UpdatePricingPlanInput) => {
+const updatePricingPlanInDB = async (id: string, payload: UpdatePricingPlanInput) => {
 	const existing = await prisma.pricingPlan.findUnique({ where: { id } });
 	if (!existing) {
 		throw new AppError(StatusCodes.NOT_FOUND, "Pricing plan not found.");

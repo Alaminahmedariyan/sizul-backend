@@ -37,7 +37,7 @@ const assertUserExistsAndUnlinked = async (
   }
 };
 
-export const createClientInDB = async (payload: CreateClientInput) => {
+const createClientInDB = async (payload: CreateClientInput) => {
   if (payload.userId) {
     await assertUserExistsAndUnlinked(payload.userId);
   }
@@ -83,7 +83,7 @@ export const getMyClientProfileFromDB = async (userId: string) => {
   return client;
 };
 
-export const updateClientInDB = async (
+const updateClientInDB = async (
   id: string,
   payload: UpdateClientInput,
 ) => {
@@ -102,7 +102,7 @@ export const updateClientInDB = async (
   });
 };
 
-export const updateMyClientProfileInDB = async (
+const updateMyClientProfileInDB = async (
   userId: string,
   payload: UpdateMyClientProfileInput,
 ) => {
@@ -120,7 +120,7 @@ export const updateMyClientProfileInDB = async (
   });
 };
 
-export const updateClientActiveInDB = async (id: string, isActive: boolean) => {
+const updateClientActiveInDB = async (id: string, isActive: boolean) => {
   const existing = await prisma.client.findUnique({ where: { id } });
   if (!existing) {
     throw new AppError(StatusCodes.NOT_FOUND, "Client not found.");

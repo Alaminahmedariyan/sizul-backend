@@ -27,7 +27,7 @@ const assertCaseStudyExists = async (id: string) => {
 	return caseStudy;
 };
 
-export const createCaseStudyInDB = async (payload: CreateCaseStudyInput) => {
+const createCaseStudyInDB = async (payload: CreateCaseStudyInput) => {
 	return prisma.caseStudy.create({ data: toPrismaData(payload) as Prisma.CaseStudyUncheckedCreateInput });
 };
 
@@ -67,12 +67,12 @@ export const getCaseStudyByIdFromDB = async (id: string) => {
 	return caseStudy;
 };
 
-export const updateCaseStudyInDB = async (id: string, payload: UpdateCaseStudyInput) => {
+const updateCaseStudyInDB = async (id: string, payload: UpdateCaseStudyInput) => {
 	await assertCaseStudyExists(id);
 	return prisma.caseStudy.update({ where: { id }, data: toPrismaData(payload) as Prisma.CaseStudyUncheckedUpdateInput });
 };
 
-export const updateCaseStudyStatusInDB = async (id: string, status: ContentStatus) => {
+const updateCaseStudyStatusInDB = async (id: string, status: ContentStatus) => {
 	const existing = await assertCaseStudyExists(id);
 
 	const publishedAt = status === "PUBLISHED" && !existing.publishedAt ? new Date() : existing.publishedAt;
@@ -80,7 +80,7 @@ export const updateCaseStudyStatusInDB = async (id: string, status: ContentStatu
 	return prisma.caseStudy.update({ where: { id }, data: { status, publishedAt } });
 };
 
-export const linkCaseStudyServiceInDB = async (caseStudyId: string, serviceId: string) => {
+const linkCaseStudyServiceInDB = async (caseStudyId: string, serviceId: string) => {
 	await assertCaseStudyExists(caseStudyId);
 
 	const service = await prisma.service.findUnique({ where: { id: serviceId } });
