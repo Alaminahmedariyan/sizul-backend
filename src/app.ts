@@ -9,7 +9,7 @@ import express, {
 } from "express";
 import helmet from "helmet";
 
-import config from "./app/config";
+import config from "./app/config/index";
 import { forceHttps } from "./app/middlewares/forceHttps";
 import {
 	authRateLimiter,
@@ -20,7 +20,7 @@ import { notFound } from "./app/middlewares/notFound";
 import { sanitizeBody } from "./app/middlewares/sanitizeBody";
 
 import { webhookRoutes } from "./app/modules/webhook/webhook.routes";
-import { globalRoutes } from "./app/routes";
+import { globalRoutes } from "./app/routes/index";
 
 import { auth } from "./lib/auth";
 import { prisma } from "./lib/prisma";
