@@ -13,9 +13,13 @@ async function main() {
 		await prisma.$connect();
 		console.log("Connected to the database successfully.");
 
-		server = app.listen(PORT, () => {
-			console.log(`Server is running on port ${PORT}`);
-		});
+		// Only start a listening server in local development.
+		// On Vercel (serverless), the app is invoked per-request instead.
+		if (process.env.NODE_ENV !== "production") {
+			server = app.listen(PORT, () => {
+				console.log(`Server is running on port ${PORT}`);
+			});
+		}
 	} catch (error) {
 		console.error("Error starting the server:", error);
 		await prisma.$disconnect();

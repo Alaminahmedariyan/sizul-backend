@@ -1,7 +1,7 @@
 import { defineConfig } from "tsup";
 
 export default defineConfig({
-	entry: ["src/server.ts"],
+	entry: ["src/app.ts"],
 
 	outDir: "dist",
 
@@ -16,6 +16,10 @@ export default defineConfig({
 	splitting: false,
 
 	minify: false,
+
+	bundle: true,
+
+	skipNodeModulesBundle: true,
 
 	noExternal: [],
 });
