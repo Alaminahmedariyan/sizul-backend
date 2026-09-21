@@ -26,12 +26,6 @@ import {
 
 import { prisma } from "./prisma";
 
-/**
- * ============================================================
- * Social Providers
- * ============================================================
- */
-
 const socialProviders: Record<
   string,
   {
@@ -60,12 +54,6 @@ if (
   };
 }
 
-/**
- * ============================================================
- * Better Auth Trusted Origins
- * ============================================================
- */
-
 const trustedOrigins = [
   "http://localhost:3000",
   "http://127.0.0.1:3000",
@@ -78,97 +66,30 @@ const trustedOrigins = [
   (origin, index, origins) => origins.indexOf(origin) === index,
 );
 
-/**
- * ============================================================
- * Better Auth App Name
- * ============================================================
- */
-
 const APP_NAME = "Nexivo AI";
 
-/**
- * ============================================================
- * Better Auth
- * ============================================================
- */
-
 export const auth = betterAuth({
-  /**
-   * IMPORTANT:
-   * This must be the URL of the Better Auth server.
-   *
-   * Development:
-   * http://localhost:5000
-   *
-   * OAuth callback:
-   * http://localhost:5000/api/auth/callback/google
-   */
   baseURL: config.betterAuth.url,
-
-  /**
-   * Better Auth API base path.
-   */
   basePath: "/api/auth",
-
-  /**
-   * ============================================================
-   * Database
-   * ============================================================
-   */
 
   database: prismaAdapter(prisma, {
     provider: "postgresql",
   }),
-
-  /**
-   * ============================================================
-   * User
-   * ============================================================
-   */
 
   user: {
     additionalFields: {
       role: {
         type: "string",
         required: true,
-
-        /**
-         * Matches:
-         * role UserRole @default(CLIENT)
-         */
-
         defaultValue: "CLIENT",
-
-        /**
-         * Users cannot choose their role during signup.
-         *
-         * Public signup:
-         * CLIENT
-         *
-         * Staff:
-         * Created through Staff module
-         *
-         * Admin:
-         * Seed / role promotion
-         */
-
         input: false,
       },
     },
   },
 
-  /**
-   * ============================================================
-   * Email + Password
-   * ============================================================
-   */
-
   emailAndPassword: {
     enabled: true,
-
-    requireEmailVerification:
-      config.app.env === "production",
-
+    requireEmailVerification: config.app.env === "production",
     minPasswordLength: 8,
     maxPasswordLength: 128,
 
@@ -183,12 +104,6 @@ export const auth = betterAuth({
       });
     },
   },
-
-  /**
-   * ============================================================
-   * Email Verification
-   * ============================================================
-   */
 
   emailVerification: {
     sendOnSignUp: true,
@@ -206,58 +121,26 @@ export const auth = betterAuth({
     },
   },
 
-  /**
-   * ============================================================
-   * Social Providers
-   * ============================================================
-   */
-
   socialProviders,
-
-  /**
-   * ============================================================
-   * Session
-   * ============================================================
-   */
 
   session: {
     expiresIn: 7 * 24 * 60 * 60,
     updateAge: 24 * 60 * 60,
   },
 
-  /**
-   * ============================================================
-   * Trusted Origins
-   * ============================================================
-   */
-
   trustedOrigins,
 
-  /**
-   * ============================================================
-   * Cookie Configuration
-   * ============================================================
-   */
-
   advanced: {
-    useSecureCookies: config.app.env === "production",
-
+    useSecureCookies: true,
+    crossSubdomainCookies: {
+      enabled: true,
+    },
     defaultCookieAttributes: {
-      sameSite:
-        config.app.env === "production"
-          ? "none"
-          : "lax",
-
-      secure:
-        config.app.env === "production",
+      sameSite: "none",
+      secure: true,
+      httpOnly: true,
     },
   },
-
-  /**
-   * ============================================================
-   * Plugins
-   * ============================================================
-   */
 
   plugins: [
     bearer(),
@@ -268,11 +151,8 @@ export const auth = betterAuth({
 
     emailOTP({
       otpLength: 6,
-
       expiresIn: 5 * 60,
-
       allowedAttempts: 5,
-
       overrideDefaultEmailVerification: true,
 
       sendVerificationOTP: async ({
@@ -316,23 +196,10 @@ export const auth = betterAuth({
     }),
   ],
 
-  /**
-   * ============================================================
-   * Request Lifecycle Hooks
-   * ============================================================
-   */
-
   hooks: {
     before: createAuthMiddleware(async (ctx) => {
-      /**
-       * --------------------------------------------------------
-       * Email Signup Validation
-       * --------------------------------------------------------
-       */
-
       if (ctx.path === "/sign-up/email") {
-        const parsed =
-          signUpEmailValidation.safeParse(ctx.body);
+        const parsed = signUpEmailValidation.safeParse(ctx.body);
 
         if (!parsed.success) {
           throw new APIError("BAD_REQUEST", {
@@ -343,15 +210,8 @@ export const auth = betterAuth({
         }
       }
 
-      /**
-       * --------------------------------------------------------
-       * Email Sign-in Validation
-       * --------------------------------------------------------
-       */
-
       if (ctx.path === "/sign-in/email") {
-        const parsed =
-          signInEmailValidation.safeParse(ctx.body);
+        const parsed = signInEmailValidation.safeParse(ctx.body);
 
         if (!parsed.success) {
           throw new APIError("BAD_REQUEST", {
@@ -362,16 +222,8 @@ export const auth = betterAuth({
         }
       }
 
-      /**
-       * --------------------------------------------------------
-       * Brute-force Protection
-       * --------------------------------------------------------
-       */
-
       if (ctx.path === "/sign-in/email") {
-        const email = ctx.body?.email as
-          | string
-          | undefined;
+        const email = ctx.body?.email as string | undefined;
 
         if (email && (await isLocked(email))) {
           throw new APIError("TOO_MANY_REQUESTS", {
@@ -383,16 +235,8 @@ export const auth = betterAuth({
     }),
 
     after: createAuthMiddleware(async (ctx) => {
-      /**
-       * --------------------------------------------------------
-       * Failed Login Tracking
-       * --------------------------------------------------------
-       */
-
       if (ctx.path === "/sign-in/email") {
-        const email = ctx.body?.email as
-          | string
-          | undefined;
+        const email = ctx.body?.email as string | undefined;
 
         const returned = ctx.context.returned as
           | { status?: number }
@@ -416,40 +260,15 @@ export const auth = betterAuth({
     }),
   },
 
-  /**
-   * ============================================================
-   * Database Hooks
-   * ============================================================
-   *
-   * Runs for:
-   * - Email/password signup
-   * - Google signup
-   * - GitHub signup
-   *
-   * ============================================================
-   */
-
   databaseHooks: {
     user: {
       create: {
         after: async (user) => {
-          /**
-           * ----------------------------------------------------
-           * Welcome Email
-           * ----------------------------------------------------
-           */
-
           await sendEmail({
             to: user.email,
             subject: `Welcome, ${user.name}!`,
             html: welcomeEmailTemplate(user.name),
           });
-
-          /**
-           * ----------------------------------------------------
-           * Auto-create Client Profile
-           * ----------------------------------------------------
-           */
 
           const role =
             (
@@ -457,13 +276,6 @@ export const auth = betterAuth({
                 role?: string;
               }
             ).role ?? "CLIENT";
-
-          /**
-           * Only genuine public CLIENT signup should
-           * automatically create a Client profile.
-           *
-           * Admin seed is excluded using super admin email.
-           */
 
           if (
             role === "CLIENT" &&
