@@ -13,6 +13,7 @@ import {
 } from "../app/utils/emailTemplates";
 
 import { sendEmail } from "../app/utils/sendEmail";
+
 import {
   clearFailedAttempts,
   isLocked,
@@ -25,6 +26,12 @@ import {
 } from "./auth.validation";
 
 import { prisma } from "./prisma";
+
+/**
+ * ============================================================
+ * Social Providers
+ * ============================================================
+ */
 
 const socialProviders: Record<
   string,
@@ -54,6 +61,12 @@ if (
   };
 }
 
+/**
+ * ============================================================
+ * Trusted Origins
+ * ============================================================
+ */
+
 const trustedOrigins = [
   "http://localhost:3000",
   "http://127.0.0.1:3000",
@@ -63,24 +76,54 @@ const trustedOrigins = [
     .map((origin) => origin.trim())
     .filter(Boolean),
 ].filter(
-  (origin, index, origins) => origins.indexOf(origin) === index,
+  (origin, index, origins) =>
+    origins.indexOf(origin) === index,
 );
 
-const APP_NAME = "Nexivo AI";
+/**
+ * ============================================================
+ * App Constants
+ * ============================================================
+ */
+
+const APP_NAME = "Sizul";
+
+/**
+ * ============================================================
+ * Better Auth
+ * ============================================================
+ */
 
 export const auth = betterAuth({
   baseURL: config.betterAuth.url,
   basePath: "/api/auth",
 
-  // Enable Debug Logging to track exact OAuth steps in Vercel Logs
+  /**
+   * ----------------------------------------------------------
+   * Logger
+   * ----------------------------------------------------------
+   */
+
   logger: {
     disabled: false,
     level: "debug",
   },
 
+  /**
+   * ----------------------------------------------------------
+   * Database
+   * ----------------------------------------------------------
+   */
+
   database: prismaAdapter(prisma, {
     provider: "postgresql",
   }),
+
+  /**
+   * ----------------------------------------------------------
+   * User Configuration
+   * ----------------------------------------------------------
+   */
 
   user: {
     additionalFields: {
@@ -93,9 +136,18 @@ export const auth = betterAuth({
     },
   },
 
+  /**
+   * ----------------------------------------------------------
+   * Email + Password
+   * ----------------------------------------------------------
+   */
+
   emailAndPassword: {
     enabled: true,
-    requireEmailVerification: config.app.env === "production",
+
+    requireEmailVerification:
+      config.app.env === "production",
+
     minPasswordLength: 8,
     maxPasswordLength: 128,
 
@@ -110,6 +162,12 @@ export const auth = betterAuth({
       });
     },
   },
+
+  /**
+   * ----------------------------------------------------------
+   * Email Verification
+   * ----------------------------------------------------------
+   */
 
   emailVerification: {
     sendOnSignUp: true,
@@ -127,38 +185,70 @@ export const auth = betterAuth({
     },
   },
 
+  /**
+   * ----------------------------------------------------------
+   * Social Providers
+   * ----------------------------------------------------------
+   */
+
   socialProviders,
+
+  /**
+   * ----------------------------------------------------------
+   * Session
+   * ----------------------------------------------------------
+   */
 
   session: {
     expiresIn: 7 * 24 * 60 * 60,
     updateAge: 24 * 60 * 60,
   },
 
+  /**
+   * ----------------------------------------------------------
+   * Trusted Origins
+   * ----------------------------------------------------------
+   */
+
   trustedOrigins,
 
+  /**
+   * ----------------------------------------------------------
+   * Security
+   * ----------------------------------------------------------
+   */
+
   advanced: {
-    useSecureCookies: true,
-    crossSubdomainCookies: {
-      enabled: true,
-    },
-    defaultCookieAttributes: {
-      sameSite: "none",
-      secure: true,
-      httpOnly: true,
-    },
+    useSecureCookies: config.app.env === "production",
   },
 
+  /**
+   * ----------------------------------------------------------
+   * Plugins
+   * ----------------------------------------------------------
+   */
+
   plugins: [
+    /**
+     * Bearer Token Support
+     */
     bearer(),
 
+    /**
+     * Two-Factor Authentication
+     */
     twoFactor({
       issuer: APP_NAME,
     }),
 
+    /**
+     * Email OTP
+     */
     emailOTP({
       otpLength: 6,
       expiresIn: 5 * 60,
       allowedAttempts: 5,
+
       overrideDefaultEmailVerification: true,
 
       sendVerificationOTP: async ({
@@ -167,7 +257,9 @@ export const auth = betterAuth({
         type,
       }) => {
         const user = await prisma.user.findUnique({
-          where: { email },
+          where: {
+            email,
+          },
         });
 
         const name = user?.name ?? "there";
@@ -202,19 +294,27 @@ export const auth = betterAuth({
     }),
   ],
 
-  hooks: {
-    before: createAuthMiddleware(async (ctx) => {
-      // Console debug log for OAuth paths
-      if (ctx.path.includes("/callback") || ctx.path.includes("/sign-in/social")) {
-        console.log("-----------------------------------------");
-        console.log(`[OAuth Debugger] Path: ${ctx.path}`);
-        console.log(`[OAuth Debugger] Cookies Header:`, ctx.headers?.get("cookie") || "NO COOKIES RECEIVED");
-        console.log(`[OAuth Debugger] Query Params:`, JSON.stringify(ctx.query));
-        console.log("-----------------------------------------");
-      }
+  /**
+   * ==========================================================
+   * Hooks
+   * ==========================================================
+   */
 
+  hooks: {
+    /**
+     * --------------------------------------------------------
+     * Before Auth Request
+     * --------------------------------------------------------
+     */
+
+    before: createAuthMiddleware(async (ctx) => {
+      /**
+       * Sign Up Validation
+       */
       if (ctx.path === "/sign-up/email") {
-        const parsed = signUpEmailValidation.safeParse(ctx.body);
+        const parsed = signUpEmailValidation.safeParse(
+          ctx.body,
+        );
 
         if (!parsed.success) {
           throw new APIError("BAD_REQUEST", {
@@ -225,8 +325,13 @@ export const auth = betterAuth({
         }
       }
 
+      /**
+       * Sign In Validation + Brute Force Protection
+       */
       if (ctx.path === "/sign-in/email") {
-        const parsed = signInEmailValidation.safeParse(ctx.body);
+        const parsed = signInEmailValidation.safeParse(
+          ctx.body,
+        );
 
         if (!parsed.success) {
           throw new APIError("BAD_REQUEST", {
@@ -235,10 +340,10 @@ export const auth = betterAuth({
               "Invalid login details.",
           });
         }
-      }
 
-      if (ctx.path === "/sign-in/email") {
-        const email = ctx.body?.email as string | undefined;
+        const email = ctx.body?.email as
+          | string
+          | undefined;
 
         if (email && (await isLocked(email))) {
           throw new APIError("TOO_MANY_REQUESTS", {
@@ -249,42 +354,72 @@ export const auth = betterAuth({
       }
     }),
 
+    /**
+     * --------------------------------------------------------
+     * After Auth Request
+     * --------------------------------------------------------
+     */
+
     after: createAuthMiddleware(async (ctx) => {
-      if (ctx.path === "/sign-in/email") {
-        const email = ctx.body?.email as string | undefined;
+      if (ctx.path !== "/sign-in/email") {
+        return;
+      }
 
-        const returned = ctx.context.returned as
-          | { status?: number }
-          | undefined;
+      const email = ctx.body?.email as
+        | string
+        | undefined;
 
-        const failed = Boolean(
-          returned &&
-            typeof returned === "object" &&
-            "status" in returned &&
-            (returned.status ?? 0) >= 400,
-        );
+      if (!email) {
+        return;
+      }
 
-        if (email) {
-          if (failed) {
-            await recordFailedAttempt(email);
-          } else {
-            await clearFailedAttempts(email);
+      const returned = ctx.context.returned as
+        | {
+            status?: number;
           }
-        }
+        | undefined;
+
+      const failed = Boolean(
+        returned &&
+          typeof returned === "object" &&
+          "status" in returned &&
+          (returned.status ?? 0) >= 400,
+      );
+
+      if (failed) {
+        await recordFailedAttempt(email);
+      } else {
+        await clearFailedAttempts(email);
       }
     }),
   },
+
+  /**
+   * ==========================================================
+   * Database Hooks
+   * ==========================================================
+   */
 
   databaseHooks: {
     user: {
       create: {
         after: async (user) => {
+          /**
+           * Send Welcome Email
+           */
           await sendEmail({
             to: user.email,
             subject: `Welcome, ${user.name}!`,
             html: welcomeEmailTemplate(user.name),
           });
 
+          /**
+           * Get User Role
+           *
+           * Better Auth additionalFields are available
+           * on the user object, but we keep this cast
+           * safe and isolated.
+           */
           const role =
             (
               user as unknown as {
@@ -292,6 +427,12 @@ export const auth = betterAuth({
               }
             ).role ?? "CLIENT";
 
+          /**
+           * Automatically create Client profile
+           *
+           * Do not create a Client profile for the
+           * configured Super Admin account.
+           */
           if (
             role === "CLIENT" &&
             user.email !== config.superAdmin.email
@@ -328,3 +469,4 @@ export const auth = betterAuth({
     },
   },
 });
+
