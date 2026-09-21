@@ -72,6 +72,12 @@ export const auth = betterAuth({
   baseURL: config.betterAuth.url,
   basePath: "/api/auth",
 
+  // Enable Debug Logging to track exact OAuth steps in Vercel Logs
+  logger: {
+    disabled: false,
+    level: "debug",
+  },
+
   database: prismaAdapter(prisma, {
     provider: "postgresql",
   }),
@@ -198,6 +204,15 @@ export const auth = betterAuth({
 
   hooks: {
     before: createAuthMiddleware(async (ctx) => {
+      // Console debug log for OAuth paths
+      if (ctx.path.includes("/callback") || ctx.path.includes("/sign-in/social")) {
+        console.log("-----------------------------------------");
+        console.log(`[OAuth Debugger] Path: ${ctx.path}`);
+        console.log(`[OAuth Debugger] Cookies Header:`, ctx.headers?.get("cookie") || "NO COOKIES RECEIVED");
+        console.log(`[OAuth Debugger] Query Params:`, JSON.stringify(ctx.query));
+        console.log("-----------------------------------------");
+      }
+
       if (ctx.path === "/sign-up/email") {
         const parsed = signUpEmailValidation.safeParse(ctx.body);
 
