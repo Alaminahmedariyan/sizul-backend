@@ -1,4 +1,5 @@
 {
+  "buildCommand": "pnpm prisma generate && pnpm build",
   "rewrites": [
     {
       "source": "/api/auth/(.*)",

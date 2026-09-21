@@ -1,25 +1,18 @@
 import { defineConfig } from "tsup";
 
 export default defineConfig({
-	entry: ["src/app.ts"],
-
-	outDir: "dist",
-
+	entry: ["api/index.ts"],
+	outDir: "api",
 	format: ["esm"],
-
 	target: "es2023",
-
-	clean: true,
-
+	clean: false,
 	sourcemap: true,
-
 	splitting: false,
-
 	minify: false,
-
 	bundle: true,
-
 	skipNodeModulesBundle: true,
-
 	noExternal: [],
+	esbuildOptions(options) {
+		options.resolveExtensions = [".ts", ".js", ".json"];
+	},
 });

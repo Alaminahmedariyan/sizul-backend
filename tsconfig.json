@@ -1,19 +1,14 @@
 {
   "compilerOptions": {
-    // ---- Module system ----
-    // Bundler resolution allows extensionless imports such as:
-    // import { handleZodError } from "../errors/handleZodError";
     "module": "ESNext",
     "moduleResolution": "Bundler",
     "target": "ES2023",
     "lib": ["ES2023", "DOM"],
     "types": ["node"],
 
-    // ---- File layout ----
     "rootDir": "./src",
     "outDir": "./dist",
 
-    // ---- Interop & module handling ----
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "resolveJsonModule": true,
@@ -22,11 +17,9 @@
     "moduleDetection": "force",
     "noUncheckedSideEffectImports": true,
 
-    // ---- Output ----
     "sourceMap": true,
     "declaration": false,
 
-    // ---- Strictness ----
     "strict": true,
     "noUncheckedIndexedAccess": true,
     "exactOptionalPropertyTypes": true,
