@@ -64,29 +64,6 @@ const envSchema = z.object({
 	STRIPE_SECRET_KEY: z.string().optional(),
 	STRIPE_WEBHOOK_SECRET: z.string().optional(),
 
-	BKASH_BASE_URL: z
-		.string()
-		.url()
-		.optional(),
-
-	BKASH_USERNAME: z.string().optional(),
-	BKASH_PASSWORD: z.string().optional(),
-	BKASH_APP_KEY: z.string().optional(),
-	BKASH_APP_SECRET: z.string().optional(),
-
-	BKASH_CALLBACK_URL: z
-		.string()
-		.url()
-		.optional(),
-
-	SSLCOMMERZ_STORE_ID: z.string().optional(),
-	SSLCOMMERZ_STORE_PASSWORD: z.string().optional(),
-
-	SSLCOMMERZ_IS_LIVE: z
-		.coerce
-		.boolean()
-		.default(false),
-
 	SUPER_ADMIN_NAME: z.string().optional(),
 
 	SUPER_ADMIN_EMAIL: z
@@ -95,11 +72,7 @@ const envSchema = z.object({
 
 	SUPER_ADMIN_PASSWORD: z
 		.string()
-		.min(8),
-
-	HCAPTCHA_SECRET_KEY: z
-		.string()
-		.optional(),
+		.min(8)
 });
 
 const parsed = envSchema.safeParse(process.env);
@@ -200,33 +173,13 @@ const config = {
 		webhookSecret: env.STRIPE_WEBHOOK_SECRET,
 	},
 
-	bkash: {
-		baseUrl: env.BKASH_BASE_URL,
-		username: env.BKASH_USERNAME,
-		password: env.BKASH_PASSWORD,
-		appKey: env.BKASH_APP_KEY,
-		appSecret: env.BKASH_APP_SECRET,
-		callbackUrl: env.BKASH_CALLBACK_URL,
-	},
-
-	sslcommerz: {
-		storeId: env.SSLCOMMERZ_STORE_ID,
-		storePassword: env.SSLCOMMERZ_STORE_PASSWORD,
-		isLive: env.SSLCOMMERZ_IS_LIVE,
-	},
-
 	superAdmin: {
 		email: env.SUPER_ADMIN_EMAIL,
 		password: env.SUPER_ADMIN_PASSWORD,
 		name:
 			env.SUPER_ADMIN_NAME ??
 			"Super Admin",
-	},
-
-	captcha: {
-		hcaptchaSecretKey:
-			env.HCAPTCHA_SECRET_KEY,
-	},
+	}
 } as const;
 
 export default config;
