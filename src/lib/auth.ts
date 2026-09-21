@@ -19,8 +19,6 @@ import {
   recordFailedAttempt,
 } from "../app/utils/bruteForceGuard";
 
-import { verifyCaptcha } from "../app/utils/verifyCaptcha";
-
 import {
   signInEmailValidation,
   signUpEmailValidation,
@@ -380,28 +378,6 @@ export const auth = betterAuth({
             message:
               "Too many failed login attempts. Please try again in 15 minutes.",
           });
-        }
-      }
-
-      /**
-       * --------------------------------------------------------
-       * CAPTCHA
-       * --------------------------------------------------------
-       */
-
-      if (ctx.path === "/sign-up/email") {
-        const captchaToken = ctx.body?.captchaToken as
-          | string
-          | undefined;
-
-        if (config.captcha.hcaptchaSecretKey) {
-          if (!captchaToken) {
-            throw new APIError("BAD_REQUEST", {
-              message: "Captcha token is required.",
-            });
-          }
-
-          await verifyCaptcha(captchaToken);
         }
       }
     }),
