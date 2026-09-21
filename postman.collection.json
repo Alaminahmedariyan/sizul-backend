@@ -3153,12 +3153,7 @@
           "name": "Add Portfolio Image",
           "request": {
             "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
+            "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/portfolio/{{portfolioId}}/images",
               "host": [
@@ -3172,14 +3167,31 @@
                 "images"
               ]
             },
+            "description": "form-data body — set 'file' field type to File in Postman.",
             "body": {
-              "mode": "raw",
-              "raw": "{\n  \"url\": \"https://example.com/image1.jpg\",\n  \"altText\": \"Homepage screenshot\",\n  \"order\": 1\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": []
+                },
+                {
+                  "key": "altText",
+                  "value": "Homepage screenshot",
+                  "type": "text"
+                },
+                {
+                  "key": "caption",
+                  "value": "Optional caption",
+                  "type": "text"
+                },
+                {
+                  "key": "order",
+                  "value": "1",
+                  "type": "text"
                 }
-              }
+              ]
             }
           }
         },
@@ -4293,6 +4305,11 @@
                 {
                   "key": "altText",
                   "value": "Team photo",
+                  "type": "text"
+                },
+                {
+                  "key": "caption",
+                  "value": "Optional caption",
                   "type": "text"
                 }
               ]
@@ -6213,6 +6230,69 @@
                 "refund"
               ]
             }
+          }
+        },
+        {
+          "name": "bKash Callback (Public)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/payments/bkash/callback",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "payments",
+                "bkash",
+                "callback"
+              ]
+            },
+            "description": "Public callback endpoint called by bKash after payment completion. No auth required."
+          }
+        },
+        {
+          "name": "SSLCommerz Callback GET (Public)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/payments/sslcommerz/callback",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "payments",
+                "sslcommerz",
+                "callback"
+              ]
+            },
+            "description": "Public callback endpoint called by SSLCommerz after payment completion (GET). No auth required."
+          }
+        },
+        {
+          "name": "SSLCommerz Callback POST (Public)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/payments/sslcommerz/callback",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "payments",
+                "sslcommerz",
+                "callback"
+              ]
+            },
+            "description": "Public callback endpoint called by SSLCommerz after payment completion (POST). No auth required."
           }
         }
       ]

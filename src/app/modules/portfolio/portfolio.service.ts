@@ -7,7 +7,9 @@ import { prisma } from "../../../lib/prisma";
 import { Prisma } from "../../../generated/prisma/client";
 import type { Portfolio } from "../../../generated/prisma/client";
 import { portfolioQueryConfig } from "./portfolio.constant";
-import type { ContentStatus, CreatePortfolioInput, UpdatePortfolioInput } from "./portfolio.interface";
+import type { AddPortfolioImageInput, ContentStatus, CreatePortfolioInput, UpdatePortfolioInput } from "./portfolio.interface";
+import { deleteFileFromCloudinary, uploadFileToCloudinary } from "../../utils/fileUploader";
+// ADJUST THIS PATH if your Cloudinary upload util lives somewhere else:
 
 
 const portfolioDelegate = prisma.portfolio as unknown as PrismaDelegate<Portfolio>;
@@ -34,7 +36,7 @@ const createPortfolioInDB = async (payload: CreatePortfolioInput) => {
 	return prisma.portfolio.create({ data: toPrismaData(payload) as Prisma.PortfolioUncheckedCreateInput });
 };
 
-export const getAllPortfoliosFromDB = async (query: Record<string, unknown>, { publicOnly }: { publicOnly: boolean }) => {
+const getAllPortfoliosFromDB = async (query: Record<string, unknown>, { publicOnly }: { publicOnly: boolean }) => {
 	const effectiveQuery: Record<string, unknown> = { ...query };
 	if (publicOnly) {
 		effectiveQuery.status = "PUBLISHED";
@@ -44,7 +46,7 @@ export const getAllPortfoliosFromDB = async (query: Record<string, unknown>, { p
 	return queryBuilder.execute(effectiveQuery);
 };
 
-export const getPortfolioBySlugFromDB = async (slug: string, { publicOnly }: { publicOnly: boolean }) => {
+const getPortfolioBySlugFromDB = async (slug: string, { publicOnly }: { publicOnly: boolean }) => {
 	const portfolio = await prisma.portfolio.findUnique({
 		where: { slug },
 		include: { images: { orderBy: { order: "asc" } }, services: { include: { service: true } } },
@@ -57,7 +59,7 @@ export const getPortfolioBySlugFromDB = async (slug: string, { publicOnly }: { p
 	return portfolio;
 };
 
-export const getPortfolioByIdFromDB = async (id: string) => {
+const getPortfolioByIdFromDB = async (id: string) => {
 	const portfolio = await prisma.portfolio.findUnique({
 		where: { id },
 		include: { images: { orderBy: { order: "asc" } }, services: { include: { service: true } } },
@@ -85,19 +87,37 @@ const updatePortfolioStatusInDB = async (id: string, status: ContentStatus) => {
 	return prisma.portfolio.update({ where: { id }, data: { status, publishedAt } });
 };
 
-const addPortfolioImageInDB = async (
-	portfolioId: string,
-	payload: { url: string; altText?: string; caption?: string; order: number },
-) => {
+// Real file upload — the image is sent as multipart/form-data (field "file"),
+// uploaded to Cloudinary here, and only the resulting URL/publicId are stored.
+const addPortfolioImageInDB = async (portfolioId: string, file: Express.Multer.File, payload: AddPortfolioImageInput) => {
 	await assertPortfolioExists(portfolioId);
-	return prisma.portfolioImage.create({ data: { portfolioId, ...payload } as Prisma.PortfolioImageUncheckedCreateInput });
+
+	const uploadResult = await uploadFileToCloudinary(file.buffer, file.originalname, `portfolio/${portfolioId}`);
+
+	return prisma.portfolioImage.create({
+		data: {
+			portfolioId,
+			url: uploadResult.secure_url,
+			publicId: uploadResult.public_id,
+			...payload,
+		} as Prisma.PortfolioImageUncheckedCreateInput,
+	});
 };
 
-export const removePortfolioImageFromDB = async (imageId: string) => {
+const removePortfolioImageFromDB = async (imageId: string) => {
 	const existing = await prisma.portfolioImage.findUnique({ where: { id: imageId } });
 	if (!existing) {
 		throw new AppError(StatusCodes.NOT_FOUND, "Portfolio image not found.");
 	}
+
+	if (existing.publicId) {
+		try {
+			await deleteFileFromCloudinary(existing.publicId);
+		} catch (error) {
+			console.error("[Portfolio] Failed to delete Cloudinary asset:", error);
+		}
+	}
+
 	await prisma.portfolioImage.delete({ where: { id: imageId } });
 };
 
@@ -119,7 +139,7 @@ const linkPortfolioServiceInDB = async (portfolioId: string, serviceId: string) 
 	return prisma.portfolioService.create({ data: { portfolioId, serviceId } });
 };
 
-export const unlinkPortfolioServiceFromDB = async (portfolioId: string, serviceId: string) => {
+const unlinkPortfolioServiceFromDB = async (portfolioId: string, serviceId: string) => {
 	const existing = await prisma.portfolioService.findUnique({
 		where: { portfolioId_serviceId: { portfolioId, serviceId } },
 	});
@@ -130,7 +150,7 @@ export const unlinkPortfolioServiceFromDB = async (portfolioId: string, serviceI
 	await prisma.portfolioService.delete({ where: { portfolioId_serviceId: { portfolioId, serviceId } } });
 };
 
-export const deletePortfolioFromDB = async (id: string) => {
+const deletePortfolioFromDB = async (id: string) => {
 	await assertPortfolioExists(id);
 	await prisma.portfolio.delete({ where: { id } });
 };

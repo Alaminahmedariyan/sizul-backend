@@ -18,3 +18,9 @@ export type CreatePortfolioInput = {
 	isFeatured: boolean;
 };
 export type UpdatePortfolioInput = Partial<Omit<CreatePortfolioInput, "isFeatured">> & { isFeatured?: boolean };
+
+export type AddPortfolioImageInput = {
+	altText?: string;
+	caption?: string;
+	order: number;
+};

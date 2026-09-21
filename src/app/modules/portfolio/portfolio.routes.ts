@@ -2,6 +2,8 @@ import { Router } from "express";
 
 import { requireAuth, requireRole } from "../../middlewares/requireAuth";
 import { validateRequest } from "../../middlewares/validateRequest";
+// ADJUST THIS PATH if your multer middleware file lives somewhere else:
+import { imageUpload } from "../../middlewares/upload";
 
 import {
 	addPortfolioImageValidation,
@@ -47,10 +49,13 @@ router.patch(
 	portfolioController.updatePortfolioStatus,
 );
 
+// multer runs first so it parses the multipart body (populating req.file and
+// the text fields into req.body) — validateRequest only works correctly after that.
 router.post(
 	"/:id/images",
 	requireAuth,
 	requireRole("ADMIN", "STAFF"),
+	imageUpload.single("file"),
 	validateRequest(addPortfolioImageValidation),
 	portfolioController.addPortfolioImage,
 );

@@ -49,8 +49,10 @@ export const updatePortfolioStatusValidation = z.object({
 	status: portfolioStatusEnum,
 });
 
+// Multipart form-data — the image file itself arrives as req.file (see
+// portfolio.routes.ts's multer middleware), so only the accompanying text
+// fields are validated here.
 export const addPortfolioImageValidation = z.object({
-	url: z.string().url("A valid image URL is required."),
 	altText: z.string().max(200).optional(),
 	caption: z.string().max(300).optional(),
 	order: z.coerce.number().int().default(0),

@@ -533,6 +533,7 @@ model PortfolioImage {
   id          String   @id @default(cuid())
   portfolioId String
   url         String
+  publicId    String?
   altText     String?
   caption     String?
   order       Int      @default(0)
