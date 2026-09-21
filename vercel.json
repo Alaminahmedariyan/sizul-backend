@@ -3,11 +3,6 @@
   "version": 2,
   "framework": null,
   "buildCommand": "pnpm build",
-  "functions": {
-    "dist/server.js": {
-      "runtime": "nodejs22.x"
-    }
-  },
   "routes": [
     {
       "src": "/(.*)",
