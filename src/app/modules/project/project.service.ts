@@ -8,7 +8,6 @@ import { Prisma } from "../../../generated/prisma/client";
 import type { Project } from "../../../generated/prisma/client";
 import { projectQueryConfig } from "./project.constant";
 import type {
-  ProjectType,
   ProjectStatus,
   CreateProjectInput,
   UpdateProjectInput,
